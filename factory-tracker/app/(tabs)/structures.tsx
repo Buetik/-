@@ -92,25 +92,59 @@ function AddStructureModal({ visible, onClose, onSave }: AddStructureModalProps)
 
   // Handle app state changes to get pending results
   useEffect(() => {
-    const subscription = AppState.addEventListener('change', handleAppStateChange);
-    return () => subscription.remove();
-  }, []);
+    const onAppStateChange = async (nextAppState: string) => {
+      if (nextAppState !== 'active') return;
 
-  const handleAppStateChange = async (nextAppState: string) => {
-    if (nextAppState === 'active') {
+      // Проверяем, доступен ли метод getPendingResultAsync в текущей версии ImagePicker
+      const getPending = (ImagePicker as any)?.getPendingResultAsync;
+      if (typeof getPending !== 'function') {
+        return;
+      }
+
       try {
-        const result = await ImagePicker.getPendingResultAsync();
-        if (result && typeof result === 'object' && !Array.isArray(result)) {
-          const pickerResult = result as any;
-          if (pickerResult.canceled === false && pickerResult.assets && pickerResult.assets.length > 0) {
-            setPhotoUri(pickerResult.assets[0].uri);
+        const result = await (ImagePicker as any).getPendingResultAsync();
+        // Защищённая проверка структуры результата
+        if (
+          result &&
+          typeof result === 'object' &&
+          result.canceled === false &&
+          Array.isArray(result.assets) &&
+          result.assets.length > 0
+        ) {
+          const asset = result.assets[0];
+          if (asset && typeof asset.uri === 'string') {
+            setPhotoUri(asset.uri);
             setPhotoError('');
           }
         }
       } catch (error) {
         console.error('Error getting pending result:', error);
       }
-    }
+    };
+
+    // Поддерживаем разные варианты API для подписки/отписки
+    const subscription = AppState.addEventListener
+      ? AppState.addEventListener('change', onAppStateChange)
+      : // для старых версий RN
+        (AppState as any).addEventListener('change', onAppStateChange);
+
+    return () => {
+      try {
+        if (subscription && typeof (subscription as any).remove === 'function') {
+          (subscription as any).remove();
+        } else if (typeof subscription === 'function') {
+          // старый стиль: subscription — функция отписки
+          (subscription as any)();
+        }
+      } catch (err) {
+        // ничего критичного — игнорируем
+      }
+    };
+  }, []);
+
+  const handleAppStateChange = async (nextAppState: string) => {
+    // Тот же код больше не требуется — оставлен пустым для обратной совместимости
+    return;
   };
 
   const checkMediaLibraryPermissions = async () => {
