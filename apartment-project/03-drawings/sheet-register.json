@@ -1,0 +1,298 @@
+[
+  {
+    "code": "ОД-01",
+    "title": "Титульный лист",
+    "scale": "—",
+    "owner": "pib-chief-architect",
+    "status": "todo",
+    "file": "03-drawings/pdf/ОД-01.pdf"
+  },
+  {
+    "code": "ОД-02",
+    "title": "Ведомость листов",
+    "scale": "—",
+    "owner": "pib-chief-architect",
+    "status": "todo",
+    "file": "03-drawings/pdf/ОД-02.pdf"
+  },
+  {
+    "code": "ОД-03",
+    "title": "Общие указания",
+    "scale": "—",
+    "owner": "pib-chief-architect",
+    "status": "todo",
+    "file": "03-drawings/pdf/ОД-03.pdf"
+  },
+  {
+    "code": "ОД-04",
+    "title": "Экспликация помещений",
+    "scale": "—",
+    "owner": "pib-chief-architect",
+    "status": "todo",
+    "file": "03-drawings/pdf/ОД-04.pdf"
+  },
+  {
+    "code": "АР-01",
+    "title": "Обмерный план",
+    "scale": "1:50",
+    "owner": "pib-measurement",
+    "status": "todo",
+    "file": "03-drawings/pdf/АР-01.pdf"
+  },
+  {
+    "code": "АР-02",
+    "title": "Планировочное решение. Вариант 1",
+    "scale": "1:50",
+    "owner": "pib-planning",
+    "status": "todo",
+    "file": "03-drawings/pdf/АР-02.pdf"
+  },
+  {
+    "code": "АР-03",
+    "title": "Планировочное решение. Вариант 2",
+    "scale": "1:50",
+    "owner": "pib-planning",
+    "status": "todo",
+    "file": "03-drawings/pdf/АР-03.pdf"
+  },
+  {
+    "code": "АР-04",
+    "title": "Планировочное решение. Вариант 3",
+    "scale": "1:50",
+    "owner": "pib-planning",
+    "status": "todo",
+    "file": "03-drawings/pdf/АР-04.pdf"
+  },
+  {
+    "code": "АР-05",
+    "title": "План демонтажа",
+    "scale": "1:50",
+    "owner": "pib-planning",
+    "status": "todo",
+    "file": "03-drawings/pdf/АР-05.pdf"
+  },
+  {
+    "code": "АР-06",
+    "title": "План монтажа перегородок",
+    "scale": "1:50",
+    "owner": "pib-planning",
+    "status": "todo",
+    "file": "03-drawings/pdf/АР-06.pdf"
+  },
+  {
+    "code": "АР-07",
+    "title": "План расстановки мебели и оборудования",
+    "scale": "1:50",
+    "owner": "pib-furniture",
+    "status": "todo",
+    "file": "03-drawings/pdf/АР-07.pdf"
+  },
+  {
+    "code": "АР-08",
+    "title": "План дверных проёмов. Ведомость дверей",
+    "scale": "1:50",
+    "owner": "pib-furniture",
+    "status": "todo",
+    "file": "03-drawings/pdf/АР-08.pdf"
+  },
+  {
+    "code": "АР-09",
+    "title": "План потолков",
+    "scale": "1:50",
+    "owner": "pib-finishes",
+    "status": "todo",
+    "file": "03-drawings/pdf/АР-09.pdf"
+  },
+  {
+    "code": "АР-10",
+    "title": "План полов",
+    "scale": "1:50",
+    "owner": "pib-finishes",
+    "status": "todo",
+    "file": "03-drawings/pdf/АР-10.pdf"
+  },
+  {
+    "code": "АР-11",
+    "title": "Развертки стен. Кухня-гостиная и балкон",
+    "scale": "1:25",
+    "owner": "pib-finishes",
+    "status": "todo",
+    "file": "03-drawings/pdf/АР-11.pdf"
+  },
+  {
+    "code": "АР-12",
+    "title": "Развертки стен. Прихожая и коридор",
+    "scale": "1:25",
+    "owner": "pib-finishes",
+    "status": "todo",
+    "file": "03-drawings/pdf/АР-12.pdf"
+  },
+  {
+    "code": "АР-13",
+    "title": "Развертки стен. Санузел основной. Раскладка плитки",
+    "scale": "1:25",
+    "owner": "pib-finishes",
+    "status": "todo",
+    "file": "03-drawings/pdf/АР-13.pdf"
+  },
+  {
+    "code": "АР-14",
+    "title": "Развертки стен. Постирочная. Раскладка плитки",
+    "scale": "1:25",
+    "owner": "pib-finishes",
+    "status": "todo",
+    "file": "03-drawings/pdf/АР-14.pdf"
+  },
+  {
+    "code": "АР-15",
+    "title": "Развертки стен. Родительская спальня",
+    "scale": "1:25",
+    "owner": "pib-finishes",
+    "status": "todo",
+    "file": "03-drawings/pdf/АР-15.pdf"
+  },
+  {
+    "code": "АР-16",
+    "title": "Развертки стен. Детская",
+    "scale": "1:25",
+    "owner": "pib-finishes",
+    "status": "todo",
+    "file": "03-drawings/pdf/АР-16.pdf"
+  },
+  {
+    "code": "АР-17",
+    "title": "Узлы: ниша экрана проектора, душ в строительном исполнении, примыкание пола кухня-балкон",
+    "scale": "1:10",
+    "owner": "pib-finishes",
+    "status": "todo",
+    "file": "03-drawings/pdf/АР-17.pdf"
+  },
+  {
+    "code": "КД-01",
+    "title": "Концепция: стиль, палитра, материалы",
+    "scale": "—",
+    "owner": "pib-concept",
+    "status": "todo",
+    "file": "03-drawings/pdf/КД-01.pdf"
+  },
+  {
+    "code": "КД-02",
+    "title": "Мудборды по помещениям, ТЗ на визуализацию",
+    "scale": "—",
+    "owner": "pib-concept",
+    "status": "todo",
+    "file": "03-drawings/pdf/КД-02.pdf"
+  },
+  {
+    "code": "ЭО-01",
+    "title": "План освещения",
+    "scale": "1:50",
+    "owner": "pib-electrical",
+    "status": "todo",
+    "file": "03-drawings/pdf/ЭО-01.pdf"
+  },
+  {
+    "code": "ЭО-02",
+    "title": "План выключателей",
+    "scale": "1:50",
+    "owner": "pib-electrical",
+    "status": "todo",
+    "file": "03-drawings/pdf/ЭО-02.pdf"
+  },
+  {
+    "code": "ЭМ-01",
+    "title": "План розеток и силовых выводов",
+    "scale": "1:50",
+    "owner": "pib-electrical",
+    "status": "todo",
+    "file": "03-drawings/pdf/ЭМ-01.pdf"
+  },
+  {
+    "code": "ЭМ-02",
+    "title": "План слаботочных сетей и умного дома (протечки, экран, шторы, датчики)",
+    "scale": "1:50",
+    "owner": "pib-electrical",
+    "status": "todo",
+    "file": "03-drawings/pdf/ЭМ-02.pdf"
+  },
+  {
+    "code": "ЭМ-03",
+    "title": "Однолинейная схема щита",
+    "scale": "—",
+    "owner": "pib-electrical",
+    "status": "todo",
+    "file": "03-drawings/pdf/ЭМ-03.pdf"
+  },
+  {
+    "code": "ВК-01",
+    "title": "План сантехники и выводов ХВС/ГВС/К",
+    "scale": "1:50",
+    "owner": "pib-engineering",
+    "status": "todo",
+    "file": "03-drawings/pdf/ВК-01.pdf"
+  },
+  {
+    "code": "ОВ-01",
+    "title": "Тёплые полы: водяной ТП застройщика (зоны запрета крепления), электро-ТП санузлов и балкона",
+    "scale": "1:50",
+    "owner": "pib-engineering",
+    "status": "todo",
+    "file": "03-drawings/pdf/ОВ-01.pdf"
+  },
+  {
+    "code": "ОВ-02",
+    "title": "Вентиляция: трассы, бризеры, вытяжки",
+    "scale": "1:50",
+    "owner": "pib-engineering",
+    "status": "todo",
+    "file": "03-drawings/pdf/ОВ-02.pdf"
+  },
+  {
+    "code": "СП-01",
+    "title": "Ведомость отделки помещений",
+    "scale": "—",
+    "owner": "pib-specs-estimate",
+    "status": "todo",
+    "file": "03-drawings/pdf/СП-01.pdf"
+  },
+  {
+    "code": "СП-02",
+    "title": "Спецификация мебели и оборудования",
+    "scale": "—",
+    "owner": "pib-specs-estimate",
+    "status": "todo",
+    "file": "03-drawings/pdf/СП-02.pdf"
+  },
+  {
+    "code": "СП-03",
+    "title": "Спецификация светильников и электроустановочных изделий",
+    "scale": "—",
+    "owner": "pib-specs-estimate",
+    "status": "todo",
+    "file": "03-drawings/pdf/СП-03.pdf"
+  },
+  {
+    "code": "СП-04",
+    "title": "Спецификация сантехники",
+    "scale": "—",
+    "owner": "pib-specs-estimate",
+    "status": "todo",
+    "file": "03-drawings/pdf/СП-04.pdf"
+  },
+  {
+    "code": "СП-05",
+    "title": "Спецификация материалов",
+    "scale": "—",
+    "owner": "pib-specs-estimate",
+    "status": "todo",
+    "file": "03-drawings/pdf/СП-05.pdf"
+  },
+  {
+    "code": "СМ-01",
+    "title": "Смета (ориентировочная)",
+    "scale": "—",
+    "owner": "pib-specs-estimate",
+    "status": "todo",
+    "file": "03-drawings/pdf/СМ-01.pdf"
+  }
+]
