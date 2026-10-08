@@ -220,10 +220,11 @@ def draw_option(v, opt, h=1.6, furn=True):
             if sp and o2["wall"].split("/")[0] == o["wall"]:
                 g = g.difference(m.opening_rect(m.WALLS[o["wall"]], sp[1], sp[2]))
         v.shape(g, layer="AR-NEW", fc="white", hatch="////", hc=P.C_NEW, ec=P.C_NEW, lw=0.25, z=3.2)
+    infill = {w["opening"] for w in (opt.get("window_infill") or [])}
     for o in m.M["openings"]:
         if o["type"] == "window":
             s0, s1 = m.opening_span(o)
-            P._window_symbol(v, m.WALLS[o["wall"]], s0, s1, lw=0.13)
+            P._window_symbol(v, m.WALLS[o["wall"]], s0, s1, lw=0.13, infill=o["id"] in infill)
     if furn:
         for f in opt.get("furniture", []):
             (x0, y0), (x1, y1) = f["rect"]
@@ -248,27 +249,29 @@ def options_sheet(keys, scale, title_fn):
     for i, k in enumerate(keys):
         opt = m.OPTIONS[k]
         x0 = 22 + gap / 2 + i * (bw + gap)
-        v = P.fit_view(sh, scale, x0, 150, x0 + bw, 280, pad=(100, 100, 100, 100))
+        v = P.fit_view(sh, scale, x0, 150, x0 + bw, 275, pad=(100, 100, 100, 100))
         draw_option(v, opt, h=1.5 if scale >= 100 else 2.0)
-        sh.text((x0, 284), title_fn(k, opt), 2.5, bold=True)
+        from draw import wrap as _wrap
+        for li, ln in enumerate(_wrap(title_fn(k, opt), bw, 2.3, True)[:3]):
+            sh.text((x0, 286 - li * 3.3), ln, 2.3, bold=True)
         ex = v.extent
         y = ex[1] - 4
         txt = []
         if opt.get("idea"):
-            txt.append(m.short(opt["idea"], 420))
+            txt.append(opt["idea"])
         if opt.get("pros"):
-            txt.append("Плюсы: " + m.short("; ".join(opt["pros"]), 300))
+            txt.append("Плюсы: " + "; ".join(opt["pros"]))
         if opt.get("cons"):
-            txt.append("Минусы: " + m.short("; ".join(opt["cons"]), 300))
+            txt.append("Минусы: " + "; ".join(opt["cons"]))
         ylim = 64 if x0 + bw > W - 190 else 8
         yy = y
         for t in txt:
             from draw import wrap
-            for ln in wrap(t, bw, 1.5):
+            for ln in wrap(t, bw, 1.45):
                 if yy < ylim + 2:
                     break
-                sh.text((x0, yy), ln, 1.5)
-                yy -= 2.2
+                sh.text((x0, yy), ln, 1.45)
+                yy -= 2.1
             yy -= 1.0
     return sh
 

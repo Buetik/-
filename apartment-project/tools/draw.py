@@ -100,10 +100,35 @@ class Sheet:
         self.S = scale_den           # масштаб DXF (главный вид 1:1 в модели)
         self.prims = []
         self.occ = []                # занятые прямоугольники (для подписей)
+        self.clip = None             # (x0, y0, x1, y1) — отсечение примитивов (фрагменты)
 
     # --- примитивы (координаты бумаги, мм)
+    def _inside(self, p, pad=0.0):
+        c = self.clip
+        return c is None or (c[0] - pad <= p[0] <= c[2] + pad and c[1] - pad <= p[1] <= c[3] + pad)
+
     def poly(self, pts, closed=True, layer="TEXT", ec="black", lw=0.25, ls="solid", fc=None, alpha=1.0,
              hatch=None, hc=None, z=2):
+        if self.clip is not None:
+            from shapely.geometry import LineString as _LS
+            cb = sbox(*self.clip)
+            if all(self._inside(p) for p in pts):
+                pass
+            elif closed and len(pts) >= 3:
+                g = Polygon(pts).buffer(0).intersection(cb)
+                c, self.clip = self.clip, None
+                self.shape(g, layer=layer, ec=ec, lw=lw, ls=ls, fc=fc, alpha=alpha, hatch=hatch, hc=hc, z=z)
+                self.clip = c
+                return
+            else:
+                g = _LS(pts).intersection(cb)
+                c, self.clip = self.clip, None
+                for part in getattr(g, "geoms", [g]):
+                    if part.is_empty or part.geom_type != "LineString":
+                        continue
+                    self.poly(list(part.coords), closed=False, layer=layer, ec=ec, lw=lw, ls=ls, z=z)
+                self.clip = c
+                return
         self.prims.append(dict(k="poly", pts=[tuple(p) for p in pts], closed=closed, layer=layer, ec=ec, lw=lw,
                                ls=ls, fc=fc, alpha=alpha, hatch=hatch, hc=hc or ec or "black", z=z))
 
@@ -119,6 +144,10 @@ class Sheet:
         """shapely Polygon/MultiPolygon в координатах бумаги."""
         if geom is None or geom.is_empty:
             return
+        if self.clip is not None:
+            geom = geom.intersection(sbox(*self.clip))
+            if geom.is_empty:
+                return
         polys = []
         if isinstance(geom, Polygon):
             polys = [geom]
@@ -130,14 +159,20 @@ class Sheet:
                                    hatch=hatch, hc=hc or ec or "black", z=z))
 
     def circle(self, c, r, layer="TEXT", ec="black", lw=0.25, fc=None, ls="solid", z=4, alpha=1.0):
+        if not self._inside(c):
+            return
         self.prims.append(dict(k="circle", c=tuple(c), r=r, layer=layer, ec=ec, lw=lw, fc=fc, ls=ls, z=z, alpha=alpha))
 
     def arc(self, c, r, a0, a1, layer="TEXT", ec="black", lw=0.25, ls="solid", z=4):
+        if not self._inside(c):
+            return
         self.prims.append(dict(k="arc", c=tuple(c), r=r, a0=a0, a1=a1, layer=layer, ec=ec, lw=lw, ls=ls, z=z))
 
     def text(self, pos, s, h=2.5, layer="TEXT", rot=0.0, ha="left", va="baseline", color="black", bold=False,
              z=6, occupy=False, bg=None):
         if s is None or s == "":
+            return
+        if not self._inside(pos, pad=40):
             return
         s = str(s)
         self.prims.append(dict(k="text", pos=tuple(pos), s=s, h=h, layer=layer, rot=rot, ha=ha, va=va,
@@ -181,6 +216,10 @@ class Sheet:
         x0, y0, x1, y1 = bb
         if x0 < 21 or y0 < 6 or x1 > self.W - 6 or y1 > self.H - 6:
             return False
+        if self.clip is not None:
+            c = self.clip
+            if x0 < c[0] - 1 or y0 < c[1] - 1 or x1 > c[2] + 1 or y1 > c[3] + 1:
+                return False
         for o in self.occ:
             if x0 - pad < o[2] and x1 + pad > o[0] and y0 - pad < o[3] and y1 + pad > o[1]:
                 return False
@@ -190,6 +229,8 @@ class Sheet:
               prefer=None, lcolor=None, bold=False, z=7, bg="white", min_r=0):
         """Подпись с поиском свободного места вокруг anchor; при смещении — выноска."""
         ax, ay = anchor
+        if not self._inside(anchor):
+            return None
         w, hh = text_box(s, h, bold)
         dirs = prefer or [(1, 1), (1, -1), (-1, 1), (-1, -1), (1, 0), (-1, 0), (0, 1), (0, -1)]
         for r in radius:

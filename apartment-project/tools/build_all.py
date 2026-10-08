@@ -21,6 +21,7 @@ from sheets_common import Overflow  # noqa: E402
 import sheets_ar  # noqa: E402
 import sheets_eng  # noqa: E402
 import sheets_misc  # noqa: E402
+import sheets_details  # noqa: E402
 
 PDF = m.DRAW / "pdf"
 DXF = m.DRAW / "dxf"
@@ -71,67 +72,130 @@ def actualize(reg):
 
 def registry():
     reg = {}
-    for mod in (sheets_ar, sheets_eng, sheets_misc):
+    for mod in (sheets_ar, sheets_eng, sheets_misc, sheets_details):
         reg.update(mod.SHEETS)
     return reg
 
 
-def build_one(rec, no, total, ctx, fns):
+def make_pages(rec, ctx, fns):
+    """Построить лист(ы) без штампа. Возвращает список Sheet."""
     code = rec["code"]
-    fn = fns.get(code)
-    if fn is None:
-        fn = sheets_misc.stub_sheet
+    fn = fns.get(code) or sheets_misc.stub_sheet
     sig = inspect.signature(fn).parameters
     try:
-        sh = fn(ctx)
+        res = fn(ctx)
     except Overflow as e:
         if "fmt" in sig:
             print(f"  {code}: {e} -> A2")
-            sh = fn(ctx, fmt="A2")
+            res = fn(ctx, fmt="A2")
         else:
             raise
-    meta = getattr(sh, "meta", {})
-    if code == "ОД-01":
-        stamp.title_frame(sh)
-    else:
-        stamp.stamp(sh, code, rec["title"], SECTION.get(code[:2], ""), no, total,
-                    scale=meta.get("scale", rec.get("scale", "—")))
-    PDF.mkdir(parents=True, exist_ok=True)
-    DXF.mkdir(parents=True, exist_ok=True)
-    PNG.mkdir(parents=True, exist_ok=True)
-    pdf = PDF / f"{code}.pdf"
-    sh.save(pdf=str(pdf), png=str(PNG / f"{code}.png"), dxf=str(DXF / f"{code}.dxf"), dpi=130)
-    return sh, meta
+    return res if isinstance(res, list) else [res]
+
+
+def save_pages(rec, pages, first_no, total):
+    from pypdf import PdfWriter, PdfReader
+    code = rec["code"]
+    for d in (PDF, DXF, PNG):
+        d.mkdir(parents=True, exist_ok=True)
+    tmp = []
+    for k, sh in enumerate(pages):
+        meta = getattr(sh, "meta", {}) or {}
+        if code == "ОД-01":
+            stamp.title_frame(sh)
+        else:
+            title = rec["title"] + (f" (лист {k + 1} из {len(pages)})" if len(pages) > 1 else "")
+            stamp.stamp(sh, code, title, SECTION.get(code[:2], ""), first_no + k, total,
+                        scale=meta.get("scale", rec.get("scale", "—")))
+        suf = "" if k == 0 else f"-{k + 1}"
+        tp = PDF / f".tmp-{code}{suf}.pdf"
+        sh.save(pdf=str(tp), png=str(PNG / f"{code}{suf}.png"), dxf=str(DXF / f"{code}{suf}.dxf"), dpi=130)
+        tmp.append(tp)
+    w = PdfWriter()
+    for tp in tmp:
+        for page in PdfReader(str(tp)).pages:
+            w.add_page(page)
+    with open(PDF / f"{code}.pdf", "wb") as f:
+        w.write(f)
+    for tp in tmp:
+        tp.unlink()
 
 
 def main(argv):
     reg = actualize(m.load_register())
     only = set(argv)
     fns = registry()
-    total = len(reg)
     ctx = {"register": reg}
     built, failed, stubs = [], [], []
-    for no, rec in enumerate(reg, start=1):
+    pages = {}
+    # проход 1: все листы, кроме ведомости (ей нужны номера страниц)
+    for rec in reg:
+        if rec["code"] == "ОД-02":
+            continue
         if only and rec["code"] not in only:
+            # для нумерации в выборочном режиме считаем 1 страницу
+            pages[rec["code"]] = None
             continue
         try:
-            sh, meta = build_one(rec, no, total, ctx, fns)
-            rec["format"] = sh.fmt
+            pages[rec["code"]] = make_pages(rec, ctx, fns)
+        except Exception:
+            traceback.print_exc()
+            failed.append(rec["code"])
+            pages[rec["code"]] = None
+
+    def numbering(od02_n):
+        nos, n = {}, 1
+        for rec in reg:
+            nos[rec["code"]] = n
+            if rec["code"] == "ОД-02":
+                n += od02_n
+            else:
+                pl = pages.get(rec["code"])
+                n += len(pl) if pl else 1
+        return nos, n - 1
+
+    od2 = 1
+    for _ in range(3):
+        nos, total = numbering(od2)
+        for rec in reg:
+            pl = pages.get(rec["code"])
+            rec["format"] = pl[0].fmt if pl else rec.get("format", "")
+            rec["pages"] = len(pl) if pl else rec.get("pages", 1)
+        ctx["pages"] = {c: (str(v) if not pages.get(c) or len(pages[c]) == 1 else f"{v}–{v + len(pages[c]) - 1}")
+                        for c, v in nos.items()}
+        rec2 = next(r for r in reg if r["code"] == "ОД-02")
+        p2 = make_pages(rec2, ctx, fns)
+        if len(p2) == od2:
+            pages["ОД-02"] = p2
+            break
+        od2 = len(p2)
+        pages["ОД-02"] = p2
+    nos, total = numbering(len(pages["ОД-02"]))
+    for rec in reg:
+        code = rec["code"]
+        pl = pages.get(code)
+        if not pl or (only and code not in only):
+            continue
+        try:
+            save_pages(rec, pl, nos[code], total)
+            meta = getattr(pl[0], "meta", {}) or {}
+            rec["format"] = pl[0].fmt
+            rec["pages"] = len(pl)
+            rec["dxf"] = f"03-drawings/dxf/{code}.dxf"
             if meta.get("stub"):
-                stubs.append(rec["code"])
+                stubs.append(code)
                 rec["status"] = "stub"
-                rec["note"] = meta.get("note", "лист-заглушка: нет исходных данных")
+                rec["note"] = meta.get("note", "лист-заглушка")
             else:
                 rec["status"] = "drawn"
                 rec.pop("note", None)
                 if meta.get("note"):
                     rec["note"] = meta["note"]
-            rec["dxf"] = f"03-drawings/dxf/{rec['code']}.dxf"
-            built.append(rec["code"])
-            print(f"{no:>2} {rec['code']:<6} {sh.fmt} ok")
+            built.append(code)
+            print(f"{nos[code]:>2} {code:<6} {pl[0].fmt} x{len(pl)} ok")
         except Exception:
             traceback.print_exc()
-            failed.append(rec["code"])
+            failed.append(code)
     if not only:
         from pypdf import PdfWriter, PdfReader
         w = PdfWriter()
@@ -143,7 +207,7 @@ def main(argv):
         with open(PDF / "album.pdf", "wb") as f:
             w.write(f)
         m.save_register(reg)
-        print("album:", PDF / "album.pdf")
+        print("album:", PDF / "album.pdf", "pages:", total)
     print("built", len(built), "failed", failed, "stubs", stubs)
     return 1 if failed else 0
 

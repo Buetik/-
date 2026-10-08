@@ -424,6 +424,7 @@ def em03(ctx, fmt="A2"):
     n = len(groups)
     step = (x1 - x0 - 10) / n
     ytop = ybus
+    maxw = 0
     for i, g in enumerate(groups):
         x = x0 + 10 + i * step + step / 2
         sh.line((x, ytop), (x, ytop - 34), lw=0.35)
@@ -438,9 +439,11 @@ def em03(ctx, fmt="A2"):
         sh.text((x, ytop - 5), g["breaker"], 1.3, ha="center", bg="white")
         sh.circle((x, ytop - 34), 0.6, fc="black", ec="black")
         sh.text((x, ytop - 37), g["id"], 2.0, ha="center", va="top", bold=True)
-        txt = f"{g['cable']}, {g.get('length_m', 0)} м | {g.get('p_inst_kw', 0)} кВт | {m.short(g['name'], 70)}"
-        sh.text((x + 0.8, ytop - 41), txt, 1.4, rot=-90, ha="left", va="center")
-    ytab = ytop - 41 - 75
+        for k, txt in enumerate((f"{g['cable']}, {g.get('length_m', 0)} м, {g.get('p_inst_kw', 0)} кВт",
+                                 m.short(g["name"], 48))):
+            sh.text((x - 1.2 + k * 2.6, ytop - 41), txt, 1.4, rot=-90, ha="left", va="center")
+            maxw = max(maxw, text_w(txt, 1.4))
+    ytab = ytop - 41 - maxw - 6
     fl = Flow(sh, [(22, W - 7, ytab, 8)] if False else [(22, W - 5 - 185 - 4, ytab, 8), (W - 5 - 185, W - 7, ytab, 63)])
     rows = []
     for g in groups:
@@ -564,7 +567,8 @@ def vk01(ctx, fmt="A2"):
     rows = [[h_["id"], h_["where"], h_["size"], h_["h"], h_["access"]] for h_ in m.VK["hatches"]]
     fl.table([8, 40, 14, 20, 38], rows, header=["Люк", "Где", "Размер", "Отметки", "Доступ"], h=1.3,
              title="Люки и ревизии", max_lines=4)
-    fl.text(m.VK["datum"]["zero"] + "\n" + m.VK["datum"]["bath_floor"] + "\n" + m.VK["pipes"]["water_material"] +
+    fl.text("Высоты выводов h и привязки — в ведомости; марки выводов с высотами и уклоны канализации — "
+            "на фрагментах 1:25 листа ВК-02.\n" + m.VK["datum"]["zero"] + "\n" + m.VK["datum"]["bath_floor"] + "\n" + m.VK["pipes"]["water_material"] +
             "\n" + "\n".join("— " + x for x in m.VK["works_uk"]), h=1.35, title="Примечания", title_h=2.2)
     return sh
 
@@ -584,6 +588,8 @@ def vk02(ctx, fmt="A3"):
         y -= hh + 12
     for v, bb in views:
         clip = box(*bb)
+        p0, p1 = v.P((bb[0], bb[1])), v.P((bb[2], bb[3]))
+        sh.clip = (p0[0], p0[1], p1[0], p1[1])
         g = m.final_geometry()
         for wid, poly in list(g["kept"].items()) + list(g["new"].items()):
             pp = poly.intersection(clip)
@@ -609,7 +615,7 @@ def vk02(ctx, fmt="A3"):
         vk_points(v, sh, h=1.5, radius=(3, 5, 7.5, 10, 13, 17, 22))
         vk_nodes(v, sh, h=1.6)
         # рамка фрагмента
-        p0, p1 = v.P((bb[0], bb[1])), v.P((bb[2], bb[3]))
+        sh.clip = None
         sh.rect(p0[0], p0[1], p1[0], p1[1], lw=0.13, ec="#999999", ls="dashdot", z=1)
     fx0 = max(v.P((bb[2], bb[3]))[0] for v, bb in views) + 6
     fl = Flow(sh, [(fx0, W - 7, H - 8, 63)])
