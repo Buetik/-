@@ -142,7 +142,7 @@ if f64:
         warn.append(f"furniture.json F64 y {r[1]}..{r[3]} ≠ U16 {u16['span_y']} — обновить у pib-furniture (D14)")
 
 # 5a) опуски потолков hvac.json и согласование с plumbing.json
-CEIL_MAX = {"R5": 2370, "R6": 2500}   # R5 — от пола ванной (+80)
+CEIL_MAX = {"R5": 2370, "R6": 2500, "R3": 2650, "R4": 2650, "R7": 2500, "R1": 2700, "R2": 2700}   # R5 — от пола ванной (+80); D19
 for kind, pt in points:
     lim = CEIL_MAX.get(pt.get("room"))
     if lim and pt.get("height", 0) > lim:

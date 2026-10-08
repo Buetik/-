@@ -57,7 +57,7 @@
    "rcd": "— (защита УЗО 100 мА S на вводе)",
    "cable": "ВВГнг(А)-LS 3×1,5",
    "section_mm2": 1.5,
-   "length_m": 83.6,
+   "length_m": 84.0,
    "points": 23,
    "p_inst_kw": 0.2,
    "kc": 0.8,
@@ -73,13 +73,13 @@
    "rcd": "— (защита УЗО 100 мА S на вводе)",
    "cable": "ВВГнг(А)-LS 3×1,5",
    "section_mm2": 1.5,
-   "length_m": 95.0,
+   "length_m": 91.5,
    "points": 21,
    "p_inst_kw": 0.2,
    "kc": 0.8,
    "p_calc_kw": 0.16,
    "i_inst_a": 0.9,
-   "voltage_drop_pct": 0.88
+   "voltage_drop_pct": 0.85
   },
   {
    "id": "C3",
@@ -89,13 +89,13 @@
    "rcd": "30 мА, тип A",
    "cable": "ВВГнг(А)-LS 3×1,5",
    "section_mm2": 1.5,
-   "length_m": 68.1,
+   "length_m": 65.1,
    "points": 28,
    "p_inst_kw": 0.14,
    "kc": 0.8,
    "p_calc_kw": 0.11,
    "i_inst_a": 0.6,
-   "voltage_drop_pct": 0.44
+   "voltage_drop_pct": 0.42
   },
   {
    "id": "C4",
@@ -313,7 +313,7 @@
    "rcd": "30 мА, тип A",
    "cable": "ВВГнг(А)-LS 3×2,5",
    "section_mm2": 2.5,
-   "length_m": 30.0,
+   "length_m": 29.9,
    "points": 5,
    "p_inst_kw": 1.25,
    "kc": 0.7,
