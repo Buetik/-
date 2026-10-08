@@ -89,13 +89,13 @@
    "rcd": "30 мА, тип A",
    "cable": "ВВГнг(А)-LS 3×1,5",
    "section_mm2": 1.5,
-   "length_m": 68.6,
+   "length_m": 68.1,
    "points": 28,
    "p_inst_kw": 0.14,
    "kc": 0.8,
    "p_calc_kw": 0.11,
    "i_inst_a": 0.6,
-   "voltage_drop_pct": 0.45
+   "voltage_drop_pct": 0.44
   },
   {
    "id": "C4",

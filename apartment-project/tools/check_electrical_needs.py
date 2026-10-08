@@ -141,6 +141,34 @@ if f64:
     if (r[1], r[3]) != tuple(u16["span_y"]):
         warn.append(f"furniture.json F64 y {r[1]}..{r[3]} ≠ U16 {u16['span_y']} — обновить у pib-furniture (D14)")
 
+# 5a) опуски потолков hvac.json и согласование с plumbing.json
+CEIL_MAX = {"R5": 2370, "R6": 2500}   # R5 — от пола ванной (+80)
+for kind, pt in points:
+    lim = CEIL_MAX.get(pt.get("room"))
+    if lim and pt.get("height", 0) > lim:
+        err.append(f"{pt['id']}: h {pt['height']} выше потолка {pt['room']} ({lim})")
+    x, y = pt["pos"]
+    if pt.get("room") == "R3" and 3880 <= x <= 4090 and 350 <= y <= 1300 and pt.get("height", 0) > 2290:
+        err.append(f"{pt['id']}: в зоне короба-опуска кухни (низ +2290)")
+pf = ROOT / "03-drawings/plumbing.json"
+if pf.exists():
+    PB = json.loads(pf.read_text(encoding="utf-8"))
+    lv_leak = [v for v in EL["low_voltage"] if v["kind"] == "leak_sensor"]
+    for ls in PB["leak_protection"]["sensors"]:
+        if not any(math.hypot(v["pos"][0] - ls["pos"][0], v["pos"][1] - ls["pos"][1]) < 150 for v in lv_leak):
+            err.append(f"датчик {ls['id']} {ls['pos']} (plumbing.json) не совпадает с LV")
+    zones = {"LV17": (500, 1100), "LV18": (950, 1350)}   # H1 от пола ванной, H3 от УЧП
+    for v in EL["low_voltage"]:
+        if v["id"] in zones and not (zones[v["id"]][0] <= v["height"] <= zones[v["id"]][1]):
+            err.append(f"{v['id']}: h {v['height']} вне зоны люка {zones[v['id']]}")
+hf = ROOT / "03-drawings/hvac.json"
+if hf.exists():
+    HV = json.loads(hf.read_text(encoding="utf-8"))
+    for ef in HV["exhaust"]:
+        if ef["id"] in ("EF1", "EF2"):
+            if not any(s["type"] == "wire_out" and math.hypot(s["pos"][0] - ef["pos"][0], s["pos"][1] - ef["pos"][1]) < 150 for s in EL["sockets"]):
+                err.append(f"нет вывода питания у вентилятора {ef['id']} {ef['pos']}")
+
 # 6) мощность
 pc = PN["totals"]["p_calc_kw"]
 if pc > 15:
