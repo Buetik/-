@@ -1,0 +1,980 @@
+{
+ "sheet": "Объёмы отделки для сметы (pib-specs-estimate)",
+ "option": "D1",
+ "units": "m2 / m / шт",
+ "source": "01-input/measurements.json; 03-drawings/planning.json (D1); furniture.json; doors.json; electrical.json; hvac.json; plumbing.json; heating.json; 02-concept/concept.md, materials.json, palette.json; 00-brief/decisions.md D1–D23; 06-review/clashes.md K-01, K-02, K-05, K-08, K-12, K-13",
+ "method": "Скрипт tools/gen_finishes.py по геометрии measurements.json/planning.json: стены — длина грани × высота до чистового потолка (ванная — от пола +80), минус проёмы (окна по откосам 1860×1600, двери — черновой проём ×2180, вход 1140×2100, портал 1860×2450); behind_furniture — за встроенной мебелью до потолка (только черновая подготовка). Запас на подрезку не включён: плитка +10 % (ёлочка +7 %, крупный формат 60×120 +12 %).",
+ "walls": [
+  {
+   "room": "R1",
+   "face": "W1",
+   "len_m": 3.38,
+   "h_m": 2.7,
+   "kind": "paint",
+   "gross_m2": 9.13,
+   "openings_m2": 2.98,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 6.15,
+   "note": ""
+  },
+  {
+   "room": "R1",
+   "face": "W2 (вне буазери)",
+   "len_m": 2.29,
+   "h_m": 2.7,
+   "kind": "paint",
+   "gross_m2": 6.18,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 3.63,
+   "net_m2": 2.55,
+   "note": "за шкафом F45/F46"
+  },
+  {
+   "room": "R1",
+   "face": "W2 буазери",
+   "len_m": 2.9,
+   "h_m": 2.7,
+   "kind": "boiserie",
+   "gross_m2": 7.83,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 7.83,
+   "note": ""
+  },
+  {
+   "room": "R1",
+   "face": "W7 (облицовка ГКЛ)",
+   "len_m": 4.091,
+   "h_m": 2.7,
+   "kind": "gkl_cladding+paint",
+   "gross_m2": 11.05,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 11.05,
+   "note": ""
+  },
+  {
+   "room": "R1",
+   "face": "W7 у двери",
+   "len_m": 1.099,
+   "h_m": 2.7,
+   "kind": "paint",
+   "gross_m2": 2.97,
+   "openings_m2": 1.96,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 1.01,
+   "note": ""
+  },
+  {
+   "room": "R1",
+   "face": "NW1/W8",
+   "len_m": 3.38,
+   "h_m": 2.7,
+   "kind": "paint",
+   "gross_m2": 9.13,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 6.7,
+   "net_m2": 2.43,
+   "note": "за шкафом-купе F45"
+  },
+  {
+   "room": "R2",
+   "face": "W1",
+   "len_m": 4.15,
+   "h_m": 2.7,
+   "kind": "paint_c5_low+c1_up",
+   "gross_m2": 11.21,
+   "openings_m2": 2.98,
+   "behind_furniture_m2": 1.44,
+   "net_m2": 6.79,
+   "note": ""
+  },
+  {
+   "room": "R2",
+   "face": "W6",
+   "len_m": 2.86,
+   "h_m": 2.7,
+   "kind": "paint_c5_low+c1_up",
+   "gross_m2": 7.72,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 7.72,
+   "note": ""
+  },
+  {
+   "room": "R2",
+   "face": "W16/NW4",
+   "len_m": 4.15,
+   "h_m": 2.7,
+   "kind": "paint_c5_low+c1_up",
+   "gross_m2": 11.21,
+   "openings_m2": 1.92,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 9.29,
+   "note": ""
+  },
+  {
+   "room": "R2",
+   "face": "W7",
+   "len_m": 2.86,
+   "h_m": 2.7,
+   "kind": "paint_c5_low+c1_up",
+   "gross_m2": 7.72,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 4.46,
+   "net_m2": 3.26,
+   "note": "за шкафом F52"
+  },
+  {
+   "room": "R3",
+   "face": "W3 (фартук отдельно)",
+   "len_m": 4.09,
+   "h_m": 2.4,
+   "kind": "paint_q2_behind_kitchen",
+   "gross_m2": 9.82,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 9.82,
+   "note": "за кухней — шпаклёвка Q2/грунт; фартук — отдельно"
+  },
+  {
+   "room": "R3",
+   "face": "W10",
+   "len_m": 2.011,
+   "h_m": 2.65,
+   "kind": "paint",
+   "gross_m2": 5.33,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 3.17,
+   "net_m2": 2.16,
+   "note": "за буфетом и пеналом K-07"
+  },
+  {
+   "room": "R3",
+   "face": "W8/NW1",
+   "len_m": 3.53,
+   "h_m": 2.65,
+   "kind": "paint",
+   "gross_m2": 9.35,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 9.35,
+   "note": ""
+  },
+  {
+   "room": "R3",
+   "face": "W2",
+   "len_m": 3.58,
+   "h_m": 2.55,
+   "kind": "paint",
+   "gross_m2": 9.13,
+   "openings_m2": 4.56,
+   "behind_furniture_m2": 1.39,
+   "net_m2": 3.18,
+   "note": ""
+  },
+  {
+   "room": "R4",
+   "face": "W5",
+   "len_m": 1.631,
+   "h_m": 2.65,
+   "kind": "paint",
+   "gross_m2": 4.32,
+   "openings_m2": 2.39,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 1.93,
+   "note": ""
+  },
+  {
+   "room": "R4",
+   "face": "W11/NW9",
+   "len_m": 1.82,
+   "h_m": 2.65,
+   "kind": "paint",
+   "gross_m2": 4.82,
+   "openings_m2": 1.74,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 3.08,
+   "note": ""
+  },
+  {
+   "room": "R4",
+   "face": "W14",
+   "len_m": 1.11,
+   "h_m": 2.65,
+   "kind": "paint",
+   "gross_m2": 2.94,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 2.94,
+   "note": "щиты U15/U16 накладные — окраска до монтажа"
+  },
+  {
+   "room": "R4",
+   "face": "W13/торцы за шкафом",
+   "len_m": 2.721,
+   "h_m": 2.65,
+   "kind": "paint_q2_behind",
+   "gross_m2": 7.21,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 7.21,
+   "net_m2": 0.0,
+   "note": ""
+  },
+  {
+   "room": "R4",
+   "face": "W12 (коридор)",
+   "len_m": 2.25,
+   "h_m": 2.65,
+   "kind": "paint",
+   "gross_m2": 5.96,
+   "openings_m2": 1.74,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 4.22,
+   "note": ""
+  },
+  {
+   "room": "R4",
+   "face": "NW4 (торец коридора)",
+   "len_m": 1.3,
+   "h_m": 2.65,
+   "kind": "paint",
+   "gross_m2": 3.45,
+   "openings_m2": 1.92,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 1.53,
+   "note": ""
+  },
+  {
+   "room": "R4",
+   "face": "W7 (коридор)",
+   "len_m": 2.25,
+   "h_m": 2.65,
+   "kind": "paint",
+   "gross_m2": 5.96,
+   "openings_m2": 1.96,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 4.0,
+   "note": ""
+  },
+  {
+   "room": "R4",
+   "face": "W8 торец + W8 y=3721",
+   "len_m": 0.431,
+   "h_m": 2.65,
+   "kind": "paint",
+   "gross_m2": 1.14,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 1.14,
+   "note": ""
+  },
+  {
+   "room": "R5",
+   "face": "W13 плитка до потолка (за ванной)",
+   "len_m": 1.7,
+   "h_m": 2.37,
+   "kind": "tile_wet",
+   "gross_m2": 4.03,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 4.03,
+   "note": ""
+  },
+  {
+   "room": "R5",
+   "face": "W13 плитка до 1200",
+   "len_m": 0.941,
+   "h_m": 1.2,
+   "kind": "tile_dry",
+   "gross_m2": 1.13,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 1.13,
+   "note": ""
+  },
+  {
+   "room": "R5",
+   "face": "W13 краска",
+   "len_m": 0.941,
+   "h_m": 1.17,
+   "kind": "paint_wet",
+   "gross_m2": 1.1,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 1.1,
+   "note": ""
+  },
+  {
+   "room": "R5",
+   "face": "W14 торец ванны",
+   "len_m": 0.75,
+   "h_m": 2.37,
+   "kind": "tile_wet",
+   "gross_m2": 1.78,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 1.78,
+   "note": ""
+  },
+  {
+   "room": "R5",
+   "face": "VK-C1 облицовка душа + торец 95",
+   "len_m": 1.061,
+   "h_m": 2.37,
+   "kind": "tile_wet",
+   "gross_m2": 2.51,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 2.51,
+   "note": "+ ниши: 2×(откосы) ≈ 0,26 м² — в tile_wet_extra"
+  },
+  {
+   "room": "R5",
+   "face": "U10 грань y=5516 (душ)",
+   "len_m": 0.583,
+   "h_m": 2.37,
+   "kind": "tile_wet",
+   "gross_m2": 1.38,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 1.38,
+   "note": ""
+  },
+  {
+   "room": "R5",
+   "face": "W15 за тумбой до 1200",
+   "len_m": 0.92,
+   "h_m": 1.2,
+   "kind": "tile_dry",
+   "gross_m2": 1.1,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 1.1,
+   "note": ""
+  },
+  {
+   "room": "R5",
+   "face": "W15 краска",
+   "len_m": 1.741,
+   "h_m": 1.17,
+   "kind": "paint_wet",
+   "gross_m2": 2.04,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 2.04,
+   "note": ""
+  },
+  {
+   "room": "R5",
+   "face": "короб инсталляции (фронт + полка + торцы)",
+   "len_m": 1.121,
+   "h_m": 1.2,
+   "kind": "tile_dry",
+   "gross_m2": 1.35,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 1.35,
+   "note": ""
+  },
+  {
+   "room": "R5",
+   "face": "VK-C2 + U10 грань x=6863 до 1200",
+   "len_m": 0.547,
+   "h_m": 1.2,
+   "kind": "tile_dry",
+   "gross_m2": 0.66,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 0.66,
+   "note": ""
+  },
+  {
+   "room": "R5",
+   "face": "U10 грань x=6863 выше 1200 + W15 над VK-C2",
+   "len_m": 0.547,
+   "h_m": 1.17,
+   "kind": "paint_wet",
+   "gross_m2": 0.64,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 0.64,
+   "note": ""
+  },
+  {
+   "room": "R5",
+   "face": "W12 до 1200",
+   "len_m": 2.041,
+   "h_m": 1.2,
+   "kind": "tile_dry",
+   "gross_m2": 2.45,
+   "openings_m2": 0.96,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 1.49,
+   "note": ""
+  },
+  {
+   "room": "R5",
+   "face": "W12 краска",
+   "len_m": 2.041,
+   "h_m": 1.17,
+   "kind": "paint_wet",
+   "gross_m2": 2.39,
+   "openings_m2": 0.68,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 1.71,
+   "note": ""
+  },
+  {
+   "room": "R5",
+   "face": "экран ванны",
+   "len_m": 1.7,
+   "h_m": 0.6,
+   "kind": "tile_wet",
+   "gross_m2": 1.02,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 1.02,
+   "note": ""
+  },
+  {
+   "room": "R6",
+   "face": "W3",
+   "len_m": 1.435,
+   "h_m": 2.5,
+   "kind": "paint_wet",
+   "gross_m2": 3.59,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 3.55,
+   "net_m2": 0.04,
+   "note": "фартук отдельно"
+  },
+  {
+   "room": "R6",
+   "face": "U5 грани",
+   "len_m": 0.986,
+   "h_m": 2.5,
+   "kind": "paint_wet",
+   "gross_m2": 2.47,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 0.33,
+   "net_m2": 2.13,
+   "note": ""
+  },
+  {
+   "room": "R6",
+   "face": "W10 + U12",
+   "len_m": 1.85,
+   "h_m": 2.5,
+   "kind": "paint_wet",
+   "gross_m2": 4.63,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 2.88,
+   "net_m2": 1.75,
+   "note": ""
+  },
+  {
+   "room": "R6",
+   "face": "W4",
+   "len_m": 1.931,
+   "h_m": 2.5,
+   "kind": "paint_wet",
+   "gross_m2": 4.83,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 3.2,
+   "net_m2": 1.63,
+   "note": ""
+  },
+  {
+   "room": "R6",
+   "face": "W11/NW9",
+   "len_m": 1.74,
+   "h_m": 2.5,
+   "kind": "paint_wet",
+   "gross_m2": 4.35,
+   "openings_m2": 1.74,
+   "behind_furniture_m2": 2.23,
+   "net_m2": 0.38,
+   "note": ""
+  },
+  {
+   "room": "R6",
+   "face": "фартук «кабанчик» (W3 + грань U5)",
+   "len_m": 1.385,
+   "h_m": 0.558,
+   "kind": "tile_apron",
+   "gross_m2": 0.77,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 0.77,
+   "note": ""
+  },
+  {
+   "room": "R7",
+   "face": "W2 (балкон)",
+   "len_m": 3.023,
+   "h_m": 2.5,
+   "kind": "paint_c6",
+   "gross_m2": 7.56,
+   "openings_m2": 4.56,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 3.0,
+   "note": ""
+  },
+  {
+   "room": "R7",
+   "face": "парапеты B1/B2/B3 (ГВЛ по утеплителю)",
+   "len_m": 7.045,
+   "h_m": 1.0,
+   "kind": "gvl+paint_c6",
+   "gross_m2": 7.05,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 7.05,
+   "note": ""
+  },
+  {
+   "room": "R7",
+   "face": "надоконная полоса",
+   "len_m": 7.045,
+   "h_m": 0.05,
+   "kind": "paint_c6",
+   "gross_m2": 0.35,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 0.35,
+   "note": ""
+  },
+  {
+   "room": "R3",
+   "face": "фартук W3",
+   "len_m": 2.85,
+   "h_m": 0.65,
+   "kind": "tile_apron_porcelain",
+   "gross_m2": 1.85,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 1.85,
+   "note": ""
+  },
+  {
+   "room": "R3",
+   "face": "откосы портала O4 (2×420×2450 + 420×1860)",
+   "len_m": 6.76,
+   "h_m": 0.42,
+   "kind": "plaster+paint_c1",
+   "gross_m2": 2.84,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 2.84,
+   "note": "длина = развёртка откосов, «высота» = глубина 420"
+  },
+  {
+   "room": "R1",
+   "face": "откосы O2 (2×250×1600 + 250×1860)",
+   "len_m": 5.06,
+   "h_m": 0.25,
+   "kind": "plaster+paint",
+   "gross_m2": 1.27,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 1.27,
+   "note": ""
+  },
+  {
+   "room": "R2",
+   "face": "откосы O3",
+   "len_m": 5.061,
+   "h_m": 0.25,
+   "kind": "plaster+paint",
+   "gross_m2": 1.27,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 1.27,
+   "note": ""
+  }
+ ],
+ "floors": [
+  {
+   "room": "R1",
+   "kind": "oak_herringbone",
+   "m2": 17.54,
+   "note": ""
+  },
+  {
+   "room": "R2",
+   "kind": "oak_herringbone",
+   "m2": 11.87,
+   "note": ""
+  },
+  {
+   "room": "R3",
+   "kind": "oak_herringbone",
+   "m2": 14.59,
+   "note": "+ портал O4 x −210..0"
+  },
+  {
+   "room": "R4",
+   "kind": "oak_herringbone",
+   "m2": 7.45,
+   "note": ""
+  },
+  {
+   "room": "R4",
+   "kind": "porcelain_60x60_hall",
+   "m2": 1.89,
+   "note": ""
+  },
+  {
+   "room": "R5",
+   "kind": "porcelain_60x60_bath",
+   "m2": 2.76,
+   "note": "без зоны под ванной, коробов, рамки U14"
+  },
+  {
+   "room": "R5",
+   "kind": "porcelain_60x120_shower_R10B",
+   "m2": 0.71,
+   "note": ""
+  },
+  {
+   "room": "R5",
+   "kind": "waterproofing_floor",
+   "m2": 5.17,
+   "note": "обе ГИ (нижняя и основная) — по всей площади, кроме U10"
+  },
+  {
+   "room": "R5",
+   "kind": "podium_screed_80",
+   "m2": 5.1,
+   "note": ""
+  },
+  {
+   "room": "R6",
+   "kind": "porcelain_60x60_laundry",
+   "m2": 3.09,
+   "note": ""
+  },
+  {
+   "room": "R6",
+   "kind": "waterproofing_floor",
+   "m2": 3.12,
+   "note": ""
+  },
+  {
+   "room": "R7",
+   "kind": "lvt_herringbone",
+   "m2": 6.47,
+   "note": "+ портал O4 x −420..−210"
+  },
+  {
+   "room": "R7",
+   "kind": "xps50+screed55",
+   "m2": 6.86,
+   "note": ""
+  }
+ ],
+ "ceilings": [
+  {
+   "room": "R1",
+   "kind": "gkl_paint_2700",
+   "m2": 16.87,
+   "note": ""
+  },
+  {
+   "room": "R1",
+   "kind": "curtain_niche",
+   "m2": 0.68,
+   "note": "окраска плиты + борт ГКЛ"
+  },
+  {
+   "room": "R2",
+   "kind": "gkl_paint_2700",
+   "m2": 11.16,
+   "note": ""
+  },
+  {
+   "room": "R2",
+   "kind": "curtain_niche",
+   "m2": 0.71,
+   "note": ""
+  },
+  {
+   "room": "R3",
+   "kind": "gkl_paint_2650",
+   "m2": 11.6,
+   "note": ""
+  },
+  {
+   "room": "R3",
+   "kind": "box_soffits (CB-1, CB-2, CB-3 низ)",
+   "m2": 2.6,
+   "note": ""
+  },
+  {
+   "room": "R3",
+   "kind": "box_faces (вертикальные грани коробов)",
+   "m2": 1.97,
+   "note": ""
+  },
+  {
+   "room": "R4",
+   "kind": "gkl_paint_2650",
+   "m2": 9.34,
+   "note": ""
+  },
+  {
+   "room": "R5",
+   "kind": "gklv_paint_2450",
+   "m2": 5.17,
+   "note": ""
+  },
+  {
+   "room": "R6",
+   "kind": "gklv_paint_2500",
+   "m2": 3.12,
+   "note": ""
+  },
+  {
+   "room": "R7",
+   "kind": "gklv_on_pir50_paint_c6_2500",
+   "m2": 5.07,
+   "note": ""
+  },
+  {
+   "room": "R7",
+   "kind": "curtain_niche_P",
+   "m2": 1.01,
+   "note": ""
+  }
+ ],
+ "waterproofing_walls": [
+  {
+   "room": "R5",
+   "where": "душ + за ванной + U10 грань до потолка",
+   "m2": 9.7
+  },
+  {
+   "room": "R5",
+   "where": "прочие стены — полоса 200 над полом ванной",
+   "m2": 0.95
+  },
+  {
+   "room": "R6",
+   "where": "полоса 200 по периметру + за хозмойкой до +1450",
+   "m2": 2.45
+  }
+ ],
+ "linear": [
+  {
+   "room": "R1",
+   "kind": "cornice_80",
+   "m": 9.32,
+   "note": ""
+  },
+  {
+   "room": "R1",
+   "kind": "cornice_boiserie_LED",
+   "m": 2.9,
+   "note": ""
+  },
+  {
+   "room": "R2",
+   "kind": "cornice_60",
+   "m": 11.56,
+   "note": ""
+  },
+  {
+   "room": "R3",
+   "kind": "cornice_80",
+   "m": 8.65,
+   "note": ""
+  },
+  {
+   "room": "R3",
+   "kind": "cornice_profile_lambrequin_60",
+   "m": 3.58,
+   "note": ""
+  },
+  {
+   "room": "R4",
+   "kind": "cornice_80",
+   "m": 11.36,
+   "note": ""
+  },
+  {
+   "room": "R5",
+   "kind": "cornice_40",
+   "m": 3.9,
+   "note": ""
+  },
+  {
+   "room": "R5",
+   "kind": "shadow_profile",
+   "m": 4.68,
+   "note": ""
+  },
+  {
+   "room": "R6",
+   "kind": "shadow_profile",
+   "m": 7.34,
+   "note": ""
+  },
+  {
+   "room": "R7",
+   "kind": "shadow_profile",
+   "m": 3.02,
+   "note": ""
+  },
+  {
+   "room": "R1",
+   "kind": "plinth_mdf_120",
+   "m": 10.12,
+   "note": ""
+  },
+  {
+   "room": "R2",
+   "kind": "plinth_mdf_120",
+   "m": 10.38,
+   "note": ""
+  },
+  {
+   "room": "R3",
+   "kind": "plinth_mdf_120",
+   "m": 1.79,
+   "note": ""
+  },
+  {
+   "room": "R4",
+   "kind": "plinth_mdf_120",
+   "m": 8.14,
+   "note": ""
+  },
+  {
+   "room": "R7",
+   "kind": "plinth_mdf_80_C6",
+   "m": 8.21,
+   "note": ""
+  },
+  {
+   "room": "R2",
+   "kind": "chair_rail_40x20_at_900",
+   "m": 10.68,
+   "note": ""
+  }
+ ],
+ "counts": [
+  {
+   "item": "люк-невидимка 300×600 под плитку (H1)",
+   "qty": 1
+  },
+  {
+   "item": "люк под плитку 300×400 с уплотнением (H2, резерв)",
+   "qty": 1
+  },
+  {
+   "item": "люк-невидимка 300×400 под плитку (H3)",
+   "qty": 1
+  },
+  {
+   "item": "ревизия 300×300 в экране ванны (H6)",
+   "qty": 1
+  },
+  {
+   "item": "люк потолочный 300×300 под покраску (HC-1)",
+   "qty": 1
+  },
+  {
+   "item": "вентрешётка в коробе CB-2 (HC-2)",
+   "qty": 1
+  },
+  {
+   "item": "ниша в облицовке душа 500×400 / 500×250 (обрамление латунным уголком)",
+   "qty": 2
+  },
+  {
+   "item": "трап линейный низкий 800 (h ≤ 70)",
+   "qty": 1
+  },
+  {
+   "item": "порог-ступень керамогранит D3 (800×100×90)",
+   "qty": 1
+  },
+  {
+   "item": "порог-ограничитель D4 (800×80×15)",
+   "qty": 1
+  },
+  {
+   "item": "латунный Т-профиль/вставка стыков J1, J2",
+   "m": 4.65
+  },
+  {
+   "item": "закладные под люстры/подвесы/проектор/ДСК/сушилку/карниз с приводом",
+   "qty": 7
+  },
+  {
+   "item": "рамка-бортик U14 (VK-C3)",
+   "qty": 1
+  }
+ ],
+ "summary_by_room": {
+  "R1": {
+   "ceiling:curtain_niche": 0.68,
+   "ceiling:gkl_paint_2700": 16.87,
+   "floor:oak_herringbone": 17.54,
+   "walls:boiserie": 7.83,
+   "walls:gkl_cladding+paint": 11.05,
+   "walls:paint": 12.14,
+   "walls:plaster+paint": 1.27
+  },
+  "R2": {
+   "ceiling:curtain_niche": 0.71,
+   "ceiling:gkl_paint_2700": 11.16,
+   "floor:oak_herringbone": 11.87,
+   "walls:paint_c5_low+c1_up": 27.06,
+   "walls:plaster+paint": 1.27
+  },
+  "R3": {
+   "ceiling:box_faces (вертикальные грани коробов)": 1.97,
+   "ceiling:box_soffits (CB-1, CB-2, CB-3 низ)": 2.6,
+   "ceiling:gkl_paint_2650": 11.6,
+   "floor:oak_herringbone": 14.59,
+   "walls:paint": 14.69,
+   "walls:paint_q2_behind_kitchen": 9.82,
+   "walls:plaster+paint_c1": 2.84,
+   "walls:tile_apron_porcelain": 1.85
+  },
+  "R4": {
+   "ceiling:gkl_paint_2650": 9.34,
+   "floor:oak_herringbone": 7.45,
+   "floor:porcelain_60x60_hall": 1.89,
+   "walls:paint": 18.84,
+   "walls:paint_q2_behind": 0.0
+  },
+  "R5": {
+   "ceiling:gklv_paint_2450": 5.17,
+   "floor:podium_screed_80": 5.1,
+   "floor:porcelain_60x120_shower_R10B": 0.71,
+   "floor:porcelain_60x60_bath": 2.76,
+   "floor:waterproofing_floor": 5.17,
+   "walls:paint_wet": 5.49,
+   "walls:tile_dry": 5.73,
+   "walls:tile_wet": 10.72
+  },
+  "R6": {
+   "ceiling:gklv_paint_2500": 3.12,
+   "floor:porcelain_60x60_laundry": 3.09,
+   "floor:waterproofing_floor": 3.12,
+   "walls:paint_wet": 5.93,
+   "walls:tile_apron": 0.77
+  },
+  "R7": {
+   "ceiling:curtain_niche_P": 1.01,
+   "ceiling:gklv_on_pir50_paint_c6_2500": 5.07,
+   "floor:lvt_herringbone": 6.47,
+   "floor:xps50+screed55": 6.86,
+   "walls:gvl+paint_c6": 7.05,
+   "walls:paint_c6": 3.35
+  }
+ }
+}
