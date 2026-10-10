@@ -79,51 +79,99 @@
   },
   {
    "room": "R2",
-   "face": "W1",
+   "face": "W1 низ C5 (0..+880)",
    "len_m": 4.15,
-   "h_m": 2.7,
-   "kind": "paint_c5_low+c1_up",
-   "gross_m2": 11.21,
-   "openings_m2": 2.98,
-   "behind_furniture_m2": 1.44,
-   "net_m2": 6.79,
+   "h_m": 0.88,
+   "kind": "paint_c5",
+   "gross_m2": 3.65,
+   "openings_m2": 0.06,
+   "behind_furniture_m2": 0.53,
+   "net_m2": 3.07,
    "note": ""
   },
   {
    "room": "R2",
-   "face": "W6",
+   "face": "W1 верх C1 (+920..+2700)",
+   "len_m": 4.15,
+   "h_m": 1.78,
+   "kind": "paint_c1",
+   "gross_m2": 7.39,
+   "openings_m2": 2.85,
+   "behind_furniture_m2": 0.89,
+   "net_m2": 3.65,
+   "note": ""
+  },
+  {
+   "room": "R2",
+   "face": "W6 низ C5 (0..+880)",
    "len_m": 2.86,
-   "h_m": 2.7,
-   "kind": "paint_c5_low+c1_up",
-   "gross_m2": 7.72,
+   "h_m": 0.88,
+   "kind": "paint_c5",
+   "gross_m2": 2.52,
    "openings_m2": 0.0,
    "behind_furniture_m2": 0.0,
-   "net_m2": 7.72,
+   "net_m2": 2.52,
    "note": ""
   },
   {
    "room": "R2",
-   "face": "W16/NW4",
-   "len_m": 4.15,
-   "h_m": 2.7,
-   "kind": "paint_c5_low+c1_up",
-   "gross_m2": 11.21,
-   "openings_m2": 1.92,
-   "behind_furniture_m2": 0.0,
-   "net_m2": 9.29,
-   "note": ""
-  },
-  {
-   "room": "R2",
-   "face": "W7",
+   "face": "W6 верх C1 (+920..+2700)",
    "len_m": 2.86,
-   "h_m": 2.7,
-   "kind": "paint_c5_low+c1_up",
-   "gross_m2": 7.72,
+   "h_m": 1.78,
+   "kind": "paint_c1",
+   "gross_m2": 5.09,
    "openings_m2": 0.0,
-   "behind_furniture_m2": 4.46,
-   "net_m2": 3.26,
-   "note": "за шкафом F52"
+   "behind_furniture_m2": 0.0,
+   "net_m2": 5.09,
+   "note": ""
+  },
+  {
+   "room": "R2",
+   "face": "W16/NW4 низ C5 (0..+880)",
+   "len_m": 4.15,
+   "h_m": 0.88,
+   "kind": "paint_c5",
+   "gross_m2": 3.65,
+   "openings_m2": 0.77,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 2.88,
+   "note": ""
+  },
+  {
+   "room": "R2",
+   "face": "W16/NW4 верх C1 (+920..+2700)",
+   "len_m": 4.15,
+   "h_m": 1.78,
+   "kind": "paint_c1",
+   "gross_m2": 7.39,
+   "openings_m2": 1.11,
+   "behind_furniture_m2": 0.0,
+   "net_m2": 6.28,
+   "note": ""
+  },
+  {
+   "room": "R2",
+   "face": "W7 низ C5 (0..+880)",
+   "len_m": 2.86,
+   "h_m": 0.88,
+   "kind": "paint_c5",
+   "gross_m2": 2.52,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 1.64,
+   "net_m2": 0.88,
+   "note": ""
+  },
+  {
+   "room": "R2",
+   "face": "W7 верх C1 (+920..+2700)",
+   "len_m": 2.86,
+   "h_m": 1.78,
+   "kind": "paint_c1",
+   "gross_m2": 5.09,
+   "openings_m2": 0.0,
+   "behind_furniture_m2": 2.75,
+   "net_m2": 2.34,
+   "note": ""
   },
   {
    "room": "R3",
@@ -859,8 +907,8 @@
   {
    "room": "R2",
    "kind": "chair_rail_40x20_at_900",
-   "m": 10.68,
-   "note": ""
+   "m": 10.52,
+   "note": "минус D2 с наличниками, шкаф F52, торец у O3"
   }
  ],
  "counts": [
@@ -931,7 +979,8 @@
    "ceiling:curtain_niche": 0.71,
    "ceiling:gkl_paint_2700": 11.16,
    "floor:oak_herringbone": 11.87,
-   "walls:paint_c5_low+c1_up": 27.06,
+   "walls:paint_c1": 17.36,
+   "walls:paint_c5": 9.35,
    "walls:plaster+paint": 1.27
   },
   "R3": {

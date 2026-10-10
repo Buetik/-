@@ -194,7 +194,7 @@
    ],
    "bottom": 2290,
    "top": 2650,
-   "build": "ГКЛ 12,5 на каркасе к W10 и потолку; в нижней плоскости под решёткой U13 (y 1150..1300) — съёмная вентрешётка 200×150 (живое сечение ≥ 0,02 м²): естественная вытяжка через U13 не перекрывается, ревизия обратного клапана Ø125",
+   "build": "ГКЛ 12,5 на каркасе к W10 и потолку; в нижней плоскости под решёткой U13 (y 1000..1300) — съёмная щелевая вентрешётка HC-2 210×300 (живое сечение ≥ 0,038 м², НК-22): естественная вытяжка через U13 не перекрывается, ревизия обратного клапана Ø125",
    "note": "y 350..620 — над пеналом холодильника K-07 (верх +2400): короб на этом участке низом +2400 (продолжение CB-1). Буфет F24 (верх +2100) — ниже на 190. Светильников нет (electrical.json)."
   },
   {
@@ -300,13 +300,14 @@
    "room": "R3",
    "rect": [
     3880,
-    1150,
+    1000,
     4090,
     1300
    ],
-   "size": "210×150",
-   "type": "съёмная вентрешётка в низе короба CB-2",
-   "access": "обратный клапан Ø125 у решётки U13, естественная вытяжка кухни"
+   "size": "210×300",
+   "type": "съёмная вентрешётка в низе короба CB-2 (щелевая, живое сечение ≥ 60 % → ≥ 0,038 м²)",
+   "access": "обратный клапан Ø125 у решётки U13, естественная вытяжка кухни",
+   "airflow_check": "НК-22: отверстие канала U12/U13 ≈ 100×150 = 0,015 м² (hvac.json); живое сечение HC-2 0,038 м² ≥ 2,5× канала; путь воздуха при выключенной вытяжке: кухня → HC-2 → полость CB-2 (210×360, сечение 0,076 м²) → открытая (естественная) часть комбинированной решётки U13 → канал. Решётка U13 — двухходовая: патрубок KH1 с обратным клапаном + постоянно открытый байпас естественной тяги (pib-engineering)"
   },
   {
    "id": "HC-3",
@@ -393,9 +394,9 @@
    "plenum_mm": 87.5,
    "need_mm": 80,
    "ok": true,
-   "electrical_height": 2700,
-   "height_abs": 2700,
-   "action": "pib-electrical: изменить height 2700 → 2650"
+   "electrical_height": 2650,
+   "height_abs": 2650,
+   "action": "—"
   },
   {
    "id": "L2-2",
@@ -410,9 +411,9 @@
    "plenum_mm": 87.5,
    "need_mm": 80,
    "ok": true,
-   "electrical_height": 2700,
-   "height_abs": 2700,
-   "action": "pib-electrical: изменить height 2700 → 2650"
+   "electrical_height": 2650,
+   "height_abs": 2650,
+   "action": "—"
   },
   {
    "id": "L2-3",
@@ -427,9 +428,9 @@
    "plenum_mm": 87.5,
    "need_mm": 80,
    "ok": true,
-   "electrical_height": 2700,
-   "height_abs": 2700,
-   "action": "pib-electrical: изменить height 2700 → 2650"
+   "electrical_height": 2650,
+   "height_abs": 2650,
+   "action": "—"
   },
   {
    "id": "L2-4",
@@ -444,9 +445,9 @@
    "plenum_mm": 87.5,
    "need_mm": 80,
    "ok": true,
-   "electrical_height": 2700,
-   "height_abs": 2700,
-   "action": "pib-electrical: изменить height 2700 → 2650"
+   "electrical_height": 2650,
+   "height_abs": 2650,
+   "action": "—"
   },
   {
    "id": "L3-1",
@@ -580,9 +581,9 @@
    "plenum_mm": 87.5,
    "need_mm": 80,
    "ok": true,
-   "electrical_height": 2500,
-   "height_abs": 2500,
-   "action": "pib-electrical: изменить height 2500 → 2650"
+   "electrical_height": 2650,
+   "height_abs": 2650,
+   "action": "—"
   },
   {
    "id": "L15-2",
@@ -597,9 +598,9 @@
    "plenum_mm": 87.5,
    "need_mm": 80,
    "ok": true,
-   "electrical_height": 2500,
-   "height_abs": 2500,
-   "action": "pib-electrical: изменить height 2500 → 2650"
+   "electrical_height": 2650,
+   "height_abs": 2650,
+   "action": "—"
   },
   {
    "id": "L15-3",
@@ -614,9 +615,9 @@
    "plenum_mm": 87.5,
    "need_mm": 80,
    "ok": true,
-   "electrical_height": 2500,
-   "height_abs": 2500,
-   "action": "pib-electrical: изменить height 2500 → 2650"
+   "electrical_height": 2650,
+   "height_abs": 2650,
+   "action": "—"
   },
   {
    "id": "L15-4",
@@ -631,9 +632,9 @@
    "plenum_mm": 87.5,
    "need_mm": 80,
    "ok": true,
-   "electrical_height": 2500,
-   "height_abs": 2500,
-   "action": "pib-electrical: изменить height 2500 → 2650"
+   "electrical_height": 2650,
+   "height_abs": 2650,
+   "action": "—"
   },
   {
    "id": "L15-5",
@@ -648,9 +649,9 @@
    "plenum_mm": 87.5,
    "need_mm": 80,
    "ok": true,
-   "electrical_height": 2500,
-   "height_abs": 2500,
-   "action": "pib-electrical: изменить height 2500 → 2650"
+   "electrical_height": 2650,
+   "height_abs": 2650,
+   "action": "—"
   },
   {
    "id": "L16-1",
@@ -665,9 +666,9 @@
    "plenum_mm": 87.5,
    "need_mm": 80,
    "ok": true,
-   "electrical_height": 2450,
-   "height_abs": 2450,
-   "action": "pib-electrical: изменить height 2450 → 2650"
+   "electrical_height": 2650,
+   "height_abs": 2650,
+   "action": "—"
   },
   {
    "id": "L16-2",
@@ -682,9 +683,9 @@
    "plenum_mm": 87.5,
    "need_mm": 80,
    "ok": true,
-   "electrical_height": 2450,
-   "height_abs": 2450,
-   "action": "pib-electrical: изменить height 2450 → 2650"
+   "electrical_height": 2650,
+   "height_abs": 2650,
+   "action": "—"
   },
   {
    "id": "L16-3",
@@ -699,9 +700,9 @@
    "plenum_mm": 87.5,
    "need_mm": 80,
    "ok": true,
-   "electrical_height": 2450,
-   "height_abs": 2450,
-   "action": "pib-electrical: изменить height 2450 → 2650"
+   "electrical_height": 2650,
+   "height_abs": 2650,
+   "action": "—"
   },
   {
    "id": "L19-1",
@@ -825,29 +826,34 @@
  ],
  "other_ceiling_points": [
   {
-   "id": "LV01",
-   "height": 2400,
-   "action": "→ 2650 (потолок прихожей/коридора)"
-  },
-  {
    "id": "LV13",
-   "height": 2450,
-   "action": "→ 2650 (потолок прихожей/коридора)"
+   "height": 2650,
+   "ceiling": 2650,
+   "action": "—"
   },
   {
    "id": "LV23",
-   "height": 2450,
-   "action": "→ 2650 (потолок прихожей/коридора)"
+   "height": 2650,
+   "ceiling": 2650,
+   "action": "—"
   },
   {
    "id": "LV24",
-   "height": 2450,
-   "action": "→ 2650 (потолок прихожей/коридора)"
+   "height": 2650,
+   "ceiling": 2650,
+   "action": "—"
   },
   {
    "id": "F65",
-   "height": 2450,
-   "action": "pib-furniture: z → 2650"
+   "height": 2610,
+   "ceiling": 2650,
+   "action": "— (низ корпуса AP, верх = потолок)"
+  },
+  {
+   "id": "LV01",
+   "height": 2400,
+   "ceiling": 2650,
+   "action": "— (НК-16: принято pib-finishes) настенная протяжная коробка на W5 над входной дверью +2400 — ниже потолка +2650 на 250, выше наличника O5 (+2205); от неё гофра вертикально в пленум потолка. Отметка 2400 — общая для ЭМ и АР"
   }
  ],
  "furniture_heights": [

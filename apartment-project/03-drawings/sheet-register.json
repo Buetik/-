@@ -8,7 +8,8 @@
     "file": "03-drawings/pdf/ОД-01.pdf",
     "format": "A3",
     "pages": 1,
-    "dxf": "03-drawings/dxf/ОД-01.dxf"
+    "dxf": "03-drawings/dxf/ОД-01.dxf",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "ОД-02",
@@ -19,7 +20,8 @@
     "file": "03-drawings/pdf/ОД-02.pdf",
     "format": "A3",
     "pages": 1,
-    "dxf": "03-drawings/dxf/ОД-02.dxf"
+    "dxf": "03-drawings/dxf/ОД-02.dxf",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "ОД-03",
@@ -31,7 +33,9 @@
     "format": "A3",
     "pages": 1,
     "dxf": "03-drawings/dxf/ОД-03.dxf",
-    "note": "Лист-заглушка. Общие указания выпускает ГИП (pib-chief-architect) — файл 04-specs/general-notes.md ещё не создан. До выпуска действуют: решения D1–D23 (00-brief/decisions.md), ±0.000 = УЧП = верх плиты +100; запрет крепления в пол и штробления стяжки с водяным ТП (D3, D15)."
+    "note": "Лист-заглушка. Общие указания выпускает ГИП (pib-chief-architect) — файл 04-specs/general-notes.md ещё не создан. До выпуска действуют: решения D1–D23 (00-brief/decisions.md), ±0.000 = УЧП = верх плиты +100; запрет крепления в пол и штробления стяжки с водяным ТП (D3, D15).",
+    "gip_approved": "2026-10-10",
+    "source": "04-specs/general-notes.md"
   },
   {
     "code": "ОД-04",
@@ -43,7 +47,9 @@
     "format": "A3",
     "pages": 1,
     "dxf": "03-drawings/dxf/ОД-04.dxf",
-    "note": "предварительная, по planning.json — итог за ГИП"
+    "note": "предварительная, по planning.json — итог за ГИП",
+    "gip_approved": "2026-10-10",
+    "source": "04-specs/room-schedule.md (tools/calc_room_schedule.py)"
   },
   {
     "code": "АР-01",
@@ -54,7 +60,8 @@
     "file": "03-drawings/pdf/АР-01.pdf",
     "format": "A3",
     "pages": 1,
-    "dxf": "03-drawings/dxf/АР-01.dxf"
+    "dxf": "03-drawings/dxf/АР-01.dxf",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "АР-02",
@@ -65,7 +72,8 @@
     "file": "03-drawings/pdf/АР-02.pdf",
     "format": "A3",
     "pages": 1,
-    "dxf": "03-drawings/dxf/АР-02.dxf"
+    "dxf": "03-drawings/dxf/АР-02.dxf",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "АР-03",
@@ -76,7 +84,8 @@
     "file": "03-drawings/pdf/АР-03.pdf",
     "format": "A3",
     "pages": 1,
-    "dxf": "03-drawings/dxf/АР-03.dxf"
+    "dxf": "03-drawings/dxf/АР-03.dxf",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "АР-04",
@@ -87,7 +96,8 @@
     "file": "03-drawings/pdf/АР-04.pdf",
     "format": "A3",
     "pages": 1,
-    "dxf": "03-drawings/dxf/АР-04.dxf"
+    "dxf": "03-drawings/dxf/АР-04.dxf",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "АР-05",
@@ -98,7 +108,8 @@
     "file": "03-drawings/pdf/АР-05.pdf",
     "format": "A3",
     "pages": 1,
-    "dxf": "03-drawings/dxf/АР-05.dxf"
+    "dxf": "03-drawings/dxf/АР-05.dxf",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "АР-06",
@@ -109,7 +120,8 @@
     "file": "03-drawings/pdf/АР-06.pdf",
     "format": "A3",
     "pages": 1,
-    "dxf": "03-drawings/dxf/АР-06.dxf"
+    "dxf": "03-drawings/dxf/АР-06.dxf",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "АР-07",
@@ -120,7 +132,8 @@
     "file": "03-drawings/pdf/АР-07.pdf",
     "format": "A2",
     "pages": 1,
-    "dxf": "03-drawings/dxf/АР-07.dxf"
+    "dxf": "03-drawings/dxf/АР-07.dxf",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "АР-08",
@@ -131,7 +144,8 @@
     "file": "03-drawings/pdf/АР-08.pdf",
     "format": "A3",
     "pages": 1,
-    "dxf": "03-drawings/dxf/АР-08.dxf"
+    "dxf": "03-drawings/dxf/АР-08.dxf",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "АР-09",
@@ -142,7 +156,8 @@
     "file": "03-drawings/pdf/АР-09.pdf",
     "format": "A3",
     "pages": 1,
-    "dxf": "03-drawings/dxf/АР-09.dxf"
+    "dxf": "03-drawings/dxf/АР-09.dxf",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "АР-10",
@@ -153,7 +168,8 @@
     "file": "03-drawings/pdf/АР-10.pdf",
     "format": "A2",
     "pages": 1,
-    "dxf": "03-drawings/dxf/АР-10.dxf"
+    "dxf": "03-drawings/dxf/АР-10.dxf",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "АР-11",
@@ -164,7 +180,8 @@
     "file": "03-drawings/pdf/АР-11.pdf",
     "format": "A2",
     "pages": 1,
-    "dxf": "03-drawings/dxf/АР-11.dxf"
+    "dxf": "03-drawings/dxf/АР-11.dxf",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "АР-12",
@@ -175,7 +192,8 @@
     "file": "03-drawings/pdf/АР-12.pdf",
     "format": "A3",
     "pages": 1,
-    "dxf": "03-drawings/dxf/АР-12.dxf"
+    "dxf": "03-drawings/dxf/АР-12.dxf",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "АР-13",
@@ -186,7 +204,8 @@
     "file": "03-drawings/pdf/АР-13.pdf",
     "format": "A2",
     "pages": 1,
-    "dxf": "03-drawings/dxf/АР-13.dxf"
+    "dxf": "03-drawings/dxf/АР-13.dxf",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "АР-14",
@@ -197,7 +216,8 @@
     "file": "03-drawings/pdf/АР-14.pdf",
     "format": "A2",
     "pages": 1,
-    "dxf": "03-drawings/dxf/АР-14.dxf"
+    "dxf": "03-drawings/dxf/АР-14.dxf",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "АР-15",
@@ -208,7 +228,8 @@
     "file": "03-drawings/pdf/АР-15.pdf",
     "format": "A2",
     "pages": 1,
-    "dxf": "03-drawings/dxf/АР-15.dxf"
+    "dxf": "03-drawings/dxf/АР-15.dxf",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "АР-16",
@@ -220,7 +241,8 @@
     "format": "A3",
     "pages": 1,
     "dxf": "03-drawings/dxf/АР-16.dxf",
-    "note": "В 03-drawings/elevations.json нет разверток для АР-16 — данные не выпущены (pib-finishes)."
+    "note": "В 03-drawings/elevations.json нет разверток для АР-16 — данные не выпущены (pib-finishes).",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "АР-17",
@@ -231,7 +253,8 @@
     "file": "03-drawings/pdf/АР-17.pdf",
     "format": "A3",
     "pages": 1,
-    "dxf": "03-drawings/dxf/АР-17.dxf"
+    "dxf": "03-drawings/dxf/АР-17.dxf",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "АР-18",
@@ -242,7 +265,8 @@
     "file": "03-drawings/pdf/АР-18.pdf",
     "format": "A2",
     "pages": 1,
-    "dxf": "03-drawings/dxf/АР-18.dxf"
+    "dxf": "03-drawings/dxf/АР-18.dxf",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "КД-01",
@@ -253,7 +277,8 @@
     "file": "03-drawings/pdf/КД-01.pdf",
     "format": "A3",
     "pages": 3,
-    "dxf": "03-drawings/dxf/КД-01.dxf"
+    "dxf": "03-drawings/dxf/КД-01.dxf",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "КД-02",
@@ -264,7 +289,8 @@
     "file": "03-drawings/pdf/КД-02.pdf",
     "format": "A3",
     "pages": 2,
-    "dxf": "03-drawings/dxf/КД-02.dxf"
+    "dxf": "03-drawings/dxf/КД-02.dxf",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "ЭО-01",
@@ -275,7 +301,8 @@
     "file": "03-drawings/pdf/ЭО-01.pdf",
     "format": "A2",
     "pages": 1,
-    "dxf": "03-drawings/dxf/ЭО-01.dxf"
+    "dxf": "03-drawings/dxf/ЭО-01.dxf",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "ЭО-02",
@@ -286,7 +313,8 @@
     "file": "03-drawings/pdf/ЭО-02.pdf",
     "format": "A3",
     "pages": 1,
-    "dxf": "03-drawings/dxf/ЭО-02.dxf"
+    "dxf": "03-drawings/dxf/ЭО-02.dxf",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "ЭМ-01",
@@ -297,7 +325,8 @@
     "file": "03-drawings/pdf/ЭМ-01.pdf",
     "format": "A2",
     "pages": 1,
-    "dxf": "03-drawings/dxf/ЭМ-01.dxf"
+    "dxf": "03-drawings/dxf/ЭМ-01.dxf",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "ЭМ-02",
@@ -308,7 +337,8 @@
     "file": "03-drawings/pdf/ЭМ-02.pdf",
     "format": "A2",
     "pages": 1,
-    "dxf": "03-drawings/dxf/ЭМ-02.dxf"
+    "dxf": "03-drawings/dxf/ЭМ-02.dxf",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "ЭМ-03",
@@ -319,7 +349,8 @@
     "file": "03-drawings/pdf/ЭМ-03.pdf",
     "format": "A2",
     "pages": 1,
-    "dxf": "03-drawings/dxf/ЭМ-03.dxf"
+    "dxf": "03-drawings/dxf/ЭМ-03.dxf",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "ВК-01",
@@ -330,7 +361,8 @@
     "file": "03-drawings/pdf/ВК-01.pdf",
     "format": "A2",
     "pages": 1,
-    "dxf": "03-drawings/dxf/ВК-01.dxf"
+    "dxf": "03-drawings/dxf/ВК-01.dxf",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "ВК-02",
@@ -341,7 +373,8 @@
     "file": "03-drawings/pdf/ВК-02.pdf",
     "format": "A3",
     "pages": 1,
-    "dxf": "03-drawings/dxf/ВК-02.dxf"
+    "dxf": "03-drawings/dxf/ВК-02.dxf",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "ОВ-01",
@@ -352,7 +385,8 @@
     "file": "03-drawings/pdf/ОВ-01.pdf",
     "format": "A3",
     "pages": 1,
-    "dxf": "03-drawings/dxf/ОВ-01.dxf"
+    "dxf": "03-drawings/dxf/ОВ-01.dxf",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "ОВ-02",
@@ -363,7 +397,8 @@
     "file": "03-drawings/pdf/ОВ-02.pdf",
     "format": "A3",
     "pages": 1,
-    "dxf": "03-drawings/dxf/ОВ-02.dxf"
+    "dxf": "03-drawings/dxf/ОВ-02.dxf",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "СП-01",
@@ -374,7 +409,8 @@
     "file": "03-drawings/pdf/СП-01.pdf",
     "format": "A3",
     "pages": 1,
-    "dxf": "03-drawings/dxf/СП-01.dxf"
+    "dxf": "03-drawings/dxf/СП-01.dxf",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "СП-02",
@@ -385,7 +421,8 @@
     "file": "03-drawings/pdf/СП-02.pdf",
     "format": "A3",
     "pages": 3,
-    "dxf": "03-drawings/dxf/СП-02.dxf"
+    "dxf": "03-drawings/dxf/СП-02.dxf",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "СП-03",
@@ -396,7 +433,8 @@
     "file": "03-drawings/pdf/СП-03.pdf",
     "format": "A3",
     "pages": 3,
-    "dxf": "03-drawings/dxf/СП-03.dxf"
+    "dxf": "03-drawings/dxf/СП-03.dxf",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "СП-04",
@@ -407,7 +445,8 @@
     "file": "03-drawings/pdf/СП-04.pdf",
     "format": "A3",
     "pages": 2,
-    "dxf": "03-drawings/dxf/СП-04.dxf"
+    "dxf": "03-drawings/dxf/СП-04.dxf",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "СП-05",
@@ -418,7 +457,8 @@
     "file": "03-drawings/pdf/СП-05.pdf",
     "format": "A3",
     "pages": 2,
-    "dxf": "03-drawings/dxf/СП-05.dxf"
+    "dxf": "03-drawings/dxf/СП-05.dxf",
+    "gip_approved": "2026-10-10"
   },
   {
     "code": "СМ-01",
@@ -429,6 +469,7 @@
     "file": "03-drawings/pdf/СМ-01.pdf",
     "format": "A3",
     "pages": 4,
-    "dxf": "03-drawings/dxf/СМ-01.dxf"
+    "dxf": "03-drawings/dxf/СМ-01.dxf",
+    "gip_approved": "2026-10-10"
   }
 ]
