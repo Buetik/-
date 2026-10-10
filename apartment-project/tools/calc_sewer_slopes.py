@@ -94,6 +94,11 @@ def other_lines():
     ]
 
 
+def lines(ffl=0, scenario="LEVEL", trap_h=None):
+    """Совместимость (tools/clash_check.py): все трассы S1–S7 проектного сценария D26 (пол ванной ±0)."""
+    return [*bath_lines(ffl, scenario, trap_h or TRAP_H_BASE), *other_lines()]
+
+
 def length(pts):
     return sum(math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in zip(pts, pts[1:])) / 1000
 
