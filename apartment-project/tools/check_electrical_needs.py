@@ -66,7 +66,7 @@ for it in FU["items"]:
 
 # 2) ванная
 bath = (5841, 3800, 7541, 4550)
-shower_outlet = (7091, 5033)
+shower_outlet = (7446, 5150)   # кронштейн верхнего душа на облицовке VK-C1, h 2150 (АР-13) — НК-23
 for s in EL["sockets"]:
     if s["room"] != "R5" or s["type"] == "wire_out":
         continue
@@ -142,7 +142,7 @@ if f64:
         warn.append(f"furniture.json F64 y {r[1]}..{r[3]} ≠ U16 {u16['span_y']} — обновить у pib-furniture (D14)")
 
 # 5a) опуски потолков hvac.json и согласование с plumbing.json
-CEIL_MAX = {"R5": 2370, "R6": 2500, "R3": 2650, "R4": 2650, "R7": 2500, "R1": 2700, "R2": 2700}   # R5 — от пола ванной (+80); D19
+CEIL_MAX = {"R5": 2450, "R6": 2500, "R3": 2650, "R4": 2650, "R7": 2500, "R1": 2700, "R2": 2700}   # пол ванной ±0 (D26); D19
 for kind, pt in points:
     lim = CEIL_MAX.get(pt.get("room"))
     if lim and pt.get("height", 0) > lim:
@@ -169,12 +169,26 @@ if hf.exists():
             if not any(s["type"] == "wire_out" and math.hypot(s["pos"][0] - ef["pos"][0], s["pos"][1] - ef["pos"][1]) < 150 for s in EL["sockets"]):
                 err.append(f"нет вывода питания у вентилятора {ef['id']} {ef['pos']}")
 
-# 6) мощность
-pc = PN["totals"]["p_calc_kw"]
-if pc > 15:
-    err.append(f"Pр {pc} кВт > 15 кВт")
-elif pc > 11:
-    warn.append(f"Pр {pc} кВт > 11 кВт (допущение №4) — вопрос 53 заказчику")
+# 5b) облицовка W7 (D27): точки спальни на W7 — по чистовой грани x 3340
+for kind, pt in points:
+    if pt.get("room") == "R1" and 3300 < pt["pos"][0] <= 3400 and kind != "light" and pt["pos"][0] != 3340:
+        err.append(f"{pt['id']}: точка на W7 не привязана к чистовой грани облицовки x 3340 ({pt['pos'][0]})")
+# 5c) все точки слаботочки с координатами (НК-17)
+for v in EL["low_voltage"]:
+    if v["pos"] == [0, 0]:
+        err.append(f"{v['id']}: нет координат")
+
+# 6) мощность (D24: база 11 кВт, реле приоритета)
+T = PN["totals"]
+pc = T["p_calc_kw"]
+alloc = T.get("allocated_kw", 11)
+prio = T.get("p_calc_priority_kw", pc)
+if prio > alloc:
+    err.append(f"Pр приоритетных групп {prio} кВт > выделенных {alloc} кВт")
+elif pc > alloc:
+    has_relay = any(d["pos"] == "KL1" for d in PN["input"]["devices"])
+    (warn if has_relay else err).append(f"Pр всех групп {pc} кВт > {alloc} кВт — перекрывается реле приоритета KL1 (приоритетные {prio} кВт)" if has_relay
+                                        else f"Pр {pc} кВт > {alloc} кВт без реле приоритета")
 
 print(f"needs: закрыто {covered} из {total}")
 print(f"групп: {PN['totals']['groups_count']}, Pр = {pc} кВт")

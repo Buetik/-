@@ -4,7 +4,7 @@
  "units": "mm",
  "scale": "1:25",
  "source": "01-input/measurements.json; 03-drawings/planning.json (D1); furniture.json; doors.json; electrical.json; hvac.json; plumbing.json; heating.json; 02-concept/concept.md, materials.json, palette.json; 00-brief/decisions.md D1–D23; 06-review/clashes.md K-01, K-02, K-05, K-08, K-12, K-13",
- "conventions": "s — координата вдоль стены в системе measurements.json (axis), z — отметка от УЧП; в ванной дополнительно h_bath = z − 80. Плитка: x/y/z — швы (joints) и куски (pieces), min_ratio ≥ 0,5 — подрезка ≥ 1/2",
+ "conventions": "s — координата вдоль стены в системе measurements.json (axis), z — отметка от УЧП; в ванной пол ±0 (D26) — h_bath = z. Плитка: x/y/z — швы (joints) и куски (pieces), min_ratio ≥ 0,5 — подрезка ≥ 1/2",
  "elevations": [
   {
    "room": "R5",

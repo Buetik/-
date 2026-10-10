@@ -4,7 +4,7 @@
  "units": "mm",
  "scale": "1:50",
  "source": "01-input/measurements.json; 03-drawings/planning.json (D1); furniture.json; doors.json; electrical.json; hvac.json; plumbing.json; heating.json; 02-concept/concept.md, materials.json, palette.json; 00-brief/decisions.md D1–D23; 06-review/clashes.md K-01, K-02, K-05, K-08, K-12, K-13",
- "datum": "отметки от УЧП ±0.000 (верх плиты +100); низ плиты перекрытия +2750; в ванной высота от пола ванной = отметка − 80",
+ "datum": "отметки от УЧП ±0.000 (верх плиты +100); низ плиты перекрытия +2750; ванная — пол ±0 (D26), высота от пола = отметка",
  "principles": [
   "По умолчанию чистовой потолок +2700, зазор 50 под кабели в гофре (D15) — спальня и детская: встроенных спотов нет, свет — люстры, бра, LED в карнизах (concept п.5).",
   "Там, где группы встроенных спотов (кухня L2, прихожая L15, коридор L16) — ЛОКАЛЬНОЕ ПОНИЖЕНИЕ помещениями: кухня + прихожая + коридор одной плоскостью +2650 (пленум 100 − ГКЛ 12,5 = 87,5 ≥ 80); без перепадов на открытой границе кухня/прихожая (D19).",
@@ -717,9 +717,9 @@
    "plenum_mm": 337.5,
    "need_mm": 80,
    "ok": true,
-   "electrical_height": 2370,
-   "height_abs": 2370,
-   "action": "pib-electrical: изменить height 2370 → 2400"
+   "electrical_height": 2450,
+   "height_abs": 2450,
+   "action": "pib-electrical: изменить height 2450 → 2400"
   },
   {
    "id": "L19-2",
@@ -734,9 +734,9 @@
    "plenum_mm": 337.5,
    "need_mm": 80,
    "ok": true,
-   "electrical_height": 2370,
-   "height_abs": 2370,
-   "action": "pib-electrical: изменить height 2370 → 2400"
+   "electrical_height": 2450,
+   "height_abs": 2450,
+   "action": "pib-electrical: изменить height 2450 → 2400"
   },
   {
    "id": "L19-3",
@@ -751,9 +751,9 @@
    "plenum_mm": 337.5,
    "need_mm": 80,
    "ok": true,
-   "electrical_height": 2370,
-   "height_abs": 2370,
-   "action": "pib-electrical: изменить height 2370 → 2400"
+   "electrical_height": 2450,
+   "height_abs": 2450,
+   "action": "pib-electrical: изменить height 2450 → 2400"
   },
   {
    "id": "L19-4",
@@ -768,9 +768,9 @@
    "plenum_mm": 337.5,
    "need_mm": 80,
    "ok": true,
-   "electrical_height": 2370,
-   "height_abs": 2370,
-   "action": "pib-electrical: изменить height 2370 → 2400"
+   "electrical_height": 2450,
+   "height_abs": 2450,
+   "action": "pib-electrical: изменить height 2450 → 2400"
   },
   {
    "id": "L22-1",
