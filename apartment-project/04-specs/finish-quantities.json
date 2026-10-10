@@ -3,7 +3,7 @@
  "option": "D1",
  "units": "m2 / m / шт",
  "source": "01-input/measurements.json; 03-drawings/planning.json (D1); furniture.json; doors.json; electrical.json; hvac.json; plumbing.json; heating.json; 02-concept/concept.md, materials.json, palette.json; 00-brief/decisions.md D1–D23; 06-review/clashes.md K-01, K-02, K-05, K-08, K-12, K-13",
- "method": "Скрипт tools/gen_finishes.py по геометрии measurements.json/planning.json: стены — длина грани × высота до чистового потолка (ванная — от пола +80), минус проёмы (окна по откосам 1860×1600, двери — черновой проём ×2180, вход 1140×2100, портал 1860×2450); behind_furniture — за встроенной мебелью до потолка (только черновая подготовка). Запас на подрезку не включён: плитка +10 % (ёлочка +7 %, крупный формат 60×120 +12 %).",
+ "method": "Скрипт tools/gen_finishes.py по геометрии measurements.json/planning.json: стены — длина грани × высота до чистового потолка (ванная — пол ±0, D26), минус проёмы (окна по откосам 1860×1600, двери — черновой проём ×2180, вход 1140×2100, портал 1860×2450); behind_furniture — за встроенной мебелью до потолка (только черновая подготовка). Запас на подрезку не включён: плитка +10 % (ёлочка +7 %, крупный формат 60×120 +12 %).",
  "walls": [
   {
    "room": "R1",
@@ -321,12 +321,12 @@
    "room": "R5",
    "face": "W13 плитка до потолка (за ванной)",
    "len_m": 1.7,
-   "h_m": 2.37,
+   "h_m": 2.4,
    "kind": "tile_wet",
-   "gross_m2": 4.03,
+   "gross_m2": 4.08,
    "openings_m2": 0.0,
    "behind_furniture_m2": 0.0,
-   "net_m2": 4.03,
+   "net_m2": 4.08,
    "note": ""
   },
   {
@@ -345,48 +345,48 @@
    "room": "R5",
    "face": "W13 краска",
    "len_m": 0.941,
-   "h_m": 1.17,
+   "h_m": 1.2,
    "kind": "paint_wet",
-   "gross_m2": 1.1,
+   "gross_m2": 1.13,
    "openings_m2": 0.0,
    "behind_furniture_m2": 0.0,
-   "net_m2": 1.1,
+   "net_m2": 1.13,
    "note": ""
   },
   {
    "room": "R5",
    "face": "W14 торец ванны",
    "len_m": 0.75,
-   "h_m": 2.37,
+   "h_m": 2.4,
    "kind": "tile_wet",
-   "gross_m2": 1.78,
+   "gross_m2": 1.8,
    "openings_m2": 0.0,
    "behind_furniture_m2": 0.0,
-   "net_m2": 1.78,
+   "net_m2": 1.8,
    "note": ""
   },
   {
    "room": "R5",
    "face": "VK-C1 облицовка душа + торец 95",
    "len_m": 1.061,
-   "h_m": 2.37,
+   "h_m": 2.4,
    "kind": "tile_wet",
-   "gross_m2": 2.51,
+   "gross_m2": 2.55,
    "openings_m2": 0.0,
    "behind_furniture_m2": 0.0,
-   "net_m2": 2.51,
+   "net_m2": 2.55,
    "note": "+ ниши: 2×(откосы) ≈ 0,26 м² — в tile_wet_extra"
   },
   {
    "room": "R5",
    "face": "U10 грань y=5516 (душ)",
    "len_m": 0.583,
-   "h_m": 2.37,
+   "h_m": 2.4,
    "kind": "tile_wet",
-   "gross_m2": 1.38,
+   "gross_m2": 1.4,
    "openings_m2": 0.0,
    "behind_furniture_m2": 0.0,
-   "net_m2": 1.38,
+   "net_m2": 1.4,
    "note": ""
   },
   {
@@ -405,12 +405,12 @@
    "room": "R5",
    "face": "W15 краска",
    "len_m": 1.741,
-   "h_m": 1.17,
+   "h_m": 1.2,
    "kind": "paint_wet",
-   "gross_m2": 2.04,
+   "gross_m2": 2.09,
    "openings_m2": 0.0,
    "behind_furniture_m2": 0.0,
-   "net_m2": 2.04,
+   "net_m2": 2.09,
    "note": ""
   },
   {
@@ -441,12 +441,12 @@
    "room": "R5",
    "face": "U10 грань x=6863 выше 1200 + W15 над VK-C2",
    "len_m": 0.547,
-   "h_m": 1.17,
+   "h_m": 1.2,
    "kind": "paint_wet",
-   "gross_m2": 0.64,
+   "gross_m2": 0.66,
    "openings_m2": 0.0,
    "behind_furniture_m2": 0.0,
-   "net_m2": 0.64,
+   "net_m2": 0.66,
    "note": ""
   },
   {
@@ -465,12 +465,12 @@
    "room": "R5",
    "face": "W12 краска",
    "len_m": 2.041,
-   "h_m": 1.17,
+   "h_m": 1.2,
    "kind": "paint_wet",
-   "gross_m2": 2.39,
-   "openings_m2": 0.68,
+   "gross_m2": 2.45,
+   "openings_m2": 0.78,
    "behind_furniture_m2": 0.0,
-   "net_m2": 1.71,
+   "net_m2": 1.67,
    "note": ""
   },
   {
@@ -677,7 +677,7 @@
    "room": "R5",
    "kind": "porcelain_60x60_bath",
    "m2": 2.76,
-   "note": "без зоны под ванной, коробов, рамки U14"
+   "note": "без зоны под ванной, коробов и шкафа U14"
   },
   {
    "room": "R5",
@@ -689,13 +689,25 @@
    "room": "R5",
    "kind": "waterproofing_floor",
    "m2": 5.17,
-   "note": "обе ГИ (нижняя и основная) — по всей площади, кроме U10"
+   "note": "основная ГИ по всей площади, кроме U10"
   },
   {
    "room": "R5",
-   "kind": "podium_screed_80",
-   "m2": 5.1,
-   "note": ""
+   "kind": "waterproofing_pocket_bottom",
+   "m2": 1.04,
+   "note": "нижняя ГИ по плите в кармане"
+  },
+  {
+   "room": "R5",
+   "kind": "screed_demolition_to_slab_VK-D1",
+   "m2": 1.04,
+   "note": "только после тепловизора (K-22); резка по контуру без касания плиты"
+  },
+  {
+   "room": "R5",
+   "kind": "pocket_screed_fiber_78_slope_VK-D1",
+   "m2": 1.04,
+   "note": "уклон 1,5 % в душе, горизонтально под U10/VK-C2"
   },
   {
    "room": "R6",
@@ -773,7 +785,7 @@
   },
   {
    "room": "R5",
-   "kind": "gklv_paint_2450",
+   "kind": "gklv_paint_2400",
    "m2": 5.17,
    "note": ""
   },
@@ -800,11 +812,11 @@
   {
    "room": "R5",
    "where": "душ + за ванной + U10 грань до потолка",
-   "m2": 9.7
+   "m2": 9.83
   },
   {
    "room": "R5",
-   "where": "прочие стены — полоса 200 над полом ванной",
+   "where": "прочие стены — полоса 200 над полом",
    "m2": 0.95
   },
   {
@@ -941,11 +953,7 @@
    "qty": 2
   },
   {
-   "item": "трап линейный низкий 800 (h ≤ 70)",
-   "qty": 1
-  },
-  {
-   "item": "порог-ступень керамогранит D3 (800×100×90)",
+   "item": "трап линейный ультраплоский 800 (H ≤ 65, доп. сухой затвор)",
    "qty": 1
   },
   {
@@ -961,8 +969,12 @@
    "qty": 7
   },
   {
-   "item": "рамка-бортик U14 (VK-C3)",
+   "item": "скрытый профиль-водоотбойник нерж. D3 (800)",
    "qty": 1
+  },
+  {
+   "item": "лента ГИ по шву кармана VK-D1",
+   "m": 4.1
   }
  ],
  "summary_by_room": {
@@ -1001,14 +1013,16 @@
    "walls:paint_q2_behind": 0.0
   },
   "R5": {
-   "ceiling:gklv_paint_2450": 5.17,
-   "floor:podium_screed_80": 5.1,
+   "ceiling:gklv_paint_2400": 5.17,
+   "floor:pocket_screed_fiber_78_slope_VK-D1": 1.04,
    "floor:porcelain_60x120_shower_R10B": 0.71,
    "floor:porcelain_60x60_bath": 2.76,
+   "floor:screed_demolition_to_slab_VK-D1": 1.04,
    "floor:waterproofing_floor": 5.17,
-   "walls:paint_wet": 5.49,
+   "floor:waterproofing_pocket_bottom": 1.04,
+   "walls:paint_wet": 5.55,
    "walls:tile_dry": 5.73,
-   "walls:tile_wet": 10.72
+   "walls:tile_wet": 10.85
   },
   "R6": {
    "ceiling:gklv_paint_2500": 3.12,
