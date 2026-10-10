@@ -149,7 +149,7 @@ def report():
         {"tee_u6": f"{lv[(65, I50)]:+.0f} … {lv[(60, I50_MIN)]:+.0f}", "solution": "D26-1: пол ±0, трап H 60–65, S1 i = 0,02 (допустимый минимум, L 0,26 м, обоснование — plumbing.json)", "pump": False, "podium": 0},
         {"tee_u6": f"> {lv[(60, I50_MIN)]:+.0f}", "solution": "D26-3: пол ±0, трап H ≤ 70 + насос SFA Sanishower Flat в кармане на плите; ИЛИ (выбор заказчика) подиум по формуле F ≥ лоток + 76 (H 65, i 0,03): лоток −40 → +40, −20 → +60, 0 → +80, +20 → +100", "pump": True, "podium": "по формуле"},
         {"tee_u6": "контуры ТП в зоне душа, полоса у W14 свободна", "solution": f"D26-2: пристенный трап в VK-C1 (демонтаж только полосы 95 под облицовкой), лоток U6 ≤ {wl[I50]:+.0f} (0,03) / {wl[I50_MIN]:+.0f} (0,02); пол душа −2 у стены … +10 у стекла", "pump": False, "podium": 0},
-        {"tee_u6": "контуры ТП и в зоне душа, и у W14", "solution": f"пол в уровень невозможен: запасной D18 — подиум F ≥ лоток + 81 (поверх стяжки), при лотке −20 → +{podium_formula(-20)}; насос не помогает (нет глубины под корпус трапа)", "pump": False, "podium": "D18"},
+        {"tee_u6": "контуры ТП и в зоне душа, и у W14", "solution": f"пол в уровень невозможен: запасной D18 — подиум F ≥ max(лоток + 76; +60) (трап H 65 поверх стяжки −20), при лотке −20 → +{podium_formula(-20)}, 0 → +{podium_formula(0)}; насос не помогает (нет глубины под корпус трапа)", "pump": False, "podium": "D18"},
     ]
     return {"assumptions": {"slab": SLAB, "screed_top": SCREED_TOP, "tee_invert_assumed": TEE_ASSUMED, "i_50": I50, "i_50_min": I50_MIN, "i_110": I110,
                             "shower_slope": SHOWER_SLOPE, "bath_floor_dry": 0, "trap_out_above_bottom": TRAP_OUT, "trap_h_base": TRAP_H_BASE},
