@@ -21,7 +21,7 @@ from pathlib import Path
 
 import bpy  # noqa: I001 — bpy первым: он подключает bmesh и mathutils
 import bmesh
-from mathutils import Vector, noise
+from mathutils import Matrix, Vector, noise
 from shapely.geometry import Polygon, MultiPolygon
 from shapely.geometry.polygon import orient
 
@@ -99,7 +99,7 @@ def mat(name, color, rough=0.6, metal=0.0, sheen=0.0, coat=0.0, spec=0.5, bump=0
     return m
 
 
-def mat_oak(name, base='#B8986F', rough=0.42, coords='uv', grain_axis='x'):
+def mat_oak(name, base='#B8986F', rough=0.42, coords='uv', grain_axis='x', light='#C9AC83', dark='#98754F'):
     """Дуб. coords='uv' — по UV доски (u вдоль волокон, атрибут 'prand' — разброс тона);
     coords='object' — по координатам объекта, волокна вдоль grain_axis."""
     if name in MATS:
@@ -122,8 +122,8 @@ def mat_oak(name, base='#B8986F', rough=0.42, coords='uv', grain_axis='x'):
     L.new(mp.outputs['Vector'], grain.inputs['Vector'])
     ramp = N.new('ShaderNodeValToRGB')
     cr = ramp.color_ramp
-    cr.elements[0].position, cr.elements[0].color = 0.38, lin('#C9AC83')
-    cr.elements[1].position, cr.elements[1].color = 0.68, lin('#98754F')
+    cr.elements[0].position, cr.elements[0].color = 0.38, lin(light)
+    cr.elements[1].position, cr.elements[1].color = 0.68, lin(dark)
     L.new(grain.outputs['Fac'], ramp.inputs['Fac'])
     # разброс досок
     at = N.new('ShaderNodeAttribute')
@@ -278,8 +278,16 @@ def mat_leaves(name, color):
     ramp.color_ramp.elements[1].color = lin(color)
     L.new(nz.outputs['Fac'], ramp.inputs['Fac'])
     L.new(ramp.outputs['Color'], b.inputs['Base Color'])
-    _set(b, 'Roughness', 0.7)
-    _set(b, 'Subsurface Weight', 0.15)
+    vor = N.new('ShaderNodeTexVoronoi')
+    vor.inputs['Scale'].default_value = 22.0
+    L.new(tc.outputs['Object'], vor.inputs['Vector'])
+    bp = N.new('ShaderNodeBump')
+    bp.inputs['Strength'].default_value = 0.9
+    bp.inputs['Distance'].default_value = 0.05
+    L.new(vor.outputs['Distance'], bp.inputs['Height'])
+    L.new(bp.outputs['Normal'], b.inputs['Normal'])
+    _set(b, 'Roughness', 0.75)
+    _set(b, 'Subsurface Weight', 0.2)
     m.diffuse_color = lin(color)
     MATS[name] = m
     return m
@@ -304,8 +312,10 @@ def materials():
         'quartz': mat_marble('quartz_M13', '#EDE8E0', '#CFC6BA', scale=0.7, rough=0.28, veins=0.02),
         'marble': mat_marble('marble_C9', C['C9'], '#C7BDB1', scale=0.9, rough=0.32, veins=0.025),
         'oak_floor': mat_oak('oak_floor_C7', C['C7']),
-        'oak': mat_oak('oak_furniture_h', '#B48F62', rough=0.5, coords='object', grain_axis='x'),
-        'oak_v': mat_oak('oak_furniture_v', '#B48F62', rough=0.5, coords='object', grain_axis='z'),
+        'oak': mat_oak('oak_furniture_h', '#B48F62', rough=0.5, coords='object', grain_axis='x',
+                       light='#C2A27B', dark='#A9865E'),
+        'oak_v': mat_oak('oak_furniture_v', '#B48F62', rough=0.5, coords='object', grain_axis='z',
+                         light='#C2A27B', dark='#A9865E'),
         'sofa': mat('sofa_sand', '#D2C7B4', 0.9, sheen=0.6, bump=0.25),
         'chair': mat('chair_caramel', '#A68B6E', 0.85, sheen=0.6, bump=0.25),
         'pillow_a': mat('pillow_olive', '#6B6A55', 0.85, sheen=0.5, bump=0.2),
@@ -937,8 +947,10 @@ def build(cut=False):
         cylinder('pendant_canopy', TX, TY, H_B - 20, H_B, 60, BR)
         cylinder('pendant_rod', TX, TY, 1830, H_B - 20, 4, BR)
         lathe('pendant_cap', [(0, 1790), (50, 1795), (60, 1815), (30, 1830), (0, 1832)], TX, TY, BR)
-        g = lathe('pendant_globe', [(0, 1500), (60, 1508), (110, 1535), (145, 1580), (160, 1645), (150, 1715),
-                                    (110, 1765), (55, 1795), (0, 1800)], TX, TY, X['opal'], seg=48)
+        prof = [(160 * math.cos(math.radians(a)), 1650 + 160 * math.sin(math.radians(a))) for a in range(-90, 76, 5)]
+        prof[0] = (0.0, 1490.0)
+        prof += [(48, 1805), (0, 1806)]
+        g = lathe('pendant_globe', prof, TX, TY, X['opal'], seg=64)
         g.visible_shadow = False
 
     # ---------------- снаружи: перекрытие балкона, фасад, земля, деревья
@@ -1124,20 +1136,26 @@ def tub_chair(name, cx, cy, rot, fab, wood):
 
 
 def tree(name, x, y, s, X):
-    h = 3200 * s
-    cylinder(name + '_trunk', x, y, -1100, -1100 + h, 140 * s, X['trunk'], seg=12, r_top=90 * s)
+    """Дерево за окном: ствол + крона из нескольких сглаженных «облаков» (листва — бамп и просвет)."""
+    h = 3000 * s
+    cylinder(name + '_trunk', x, y, -1100, -1100 + h + 900 * s, 130 * s, X['trunk'], seg=12, r_top=70 * s)
+    rnd = random.Random(int(abs(x) + abs(y)))
     bm = bmesh.new()
-    bmesh.ops.create_icosphere(bm, subdivisions=4, radius=M(2400 * s))
-    seed = Vector((x, y, 0)) * 0.0003
-    for v in bm.verts:
-        d = noise.fractal(v.co * 1.4 + seed, 0.6, 2.0, 4)
-        v.co *= 1.0 + 0.28 * d
-        v.co.z *= 1.15
+    for k in range(9):
+        r = M(rnd.uniform(850, 1350) * s)
+        off = Vector((rnd.uniform(-1.3, 1.3), rnd.uniform(-1.3, 1.3), rnd.uniform(-0.6, 1.4))) * s
+        mtx = Matrix.Translation(off)
+        res = bmesh.ops.create_icosphere(bm, subdivisions=3, radius=r, matrix=mtx)
+        seed = Vector((x, y, k)) * 0.001
+        for v in res['verts']:
+            v.co += (v.co - off).normalized() * r * 0.12 * noise.fractal(v.co * 2.2 + seed, 0.6, 2.0, 3)
     me = bpy.data.meshes.new(name + '_crown')
     bm.to_mesh(me)
     bm.free()
     o = link(name + '_crown', me, [X['leaves']], smooth=True)
-    o.location = (M(x), M(y), M(-1100 + h + 1500 * s))
+    sd = o.modifiers.new('sub', 'SUBSURF')
+    sd.levels = sd.render_levels = 1
+    o.location = (M(x), M(y), M(-1100 + h + 900 * s))
 
 
 def spot(name, x, y, z, power, color, angle):
