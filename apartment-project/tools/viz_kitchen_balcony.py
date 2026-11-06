@@ -730,10 +730,17 @@ def build(cut=False):
     if not cut:
         collection('ceiling')
         prism('ceiling_kitchen_hall', list(kitchen.exterior.coords)[:-1], H_K, H_K + 30, X['ceil'])
-        box('CB1_upper', 650, 3450, 0, 350, 2400, H_K, X['upper'])
+        box('CB1_upper', 650, 4090 if CORNER else 3450, 0, 350, 2400, H_K, X['upper'])
         box('CB1_tall_l', 0, 650, 0, 620, 2400, H_K, X['upper'])
-        box('CB1_tall_r', 3450, 4090, 0, 620, 2400, H_K, X['upper'])
-        ring = [(0, 620), (650, 620), (650, 350), (3450, 350), (3450, 620), (4090, 620), (4090, 2011),
+        if CORNER:
+            box('CB1_w10', 3740, 4090, 350, 1240, 2400, H_K, X['upper'])
+            box('CB1_fridge', 3470, 4090, 1240, 1880, 2400, H_K, X['upper'])
+            ring = [(0, 620), (650, 620), (650, 350), (3740, 350), (3740, 1240), (3470, 1240), (3470, 1880),
+                    (4090, 1880), (4090, 2011),
+                    (7541, 2011), (7541, 3121), (4820, 3121), (4820, 5970), (3525, 5970), (3525, 3580), (0, 3580)]
+        else:
+          box('CB1_tall_r', 3450, 4090, 0, 620, 2400, H_K, X['upper'])
+          ring = [(0, 620), (650, 620), (650, 350), (3450, 350), (3450, 620), (4090, 620), (4090, 2011),
                 (7541, 2011), (7541, 3121), (4820, 3121), (4820, 5970), (3525, 5970), (3525, 3580), (0, 3580)]
         rp = orient(Polygon(ring), 1.0)
         sweep('cornice_kitchen', [(x, y, H_K) for x, y in list(rp.exterior.coords)[:-1]], (0, 0, 1), CORNICE,
@@ -757,7 +764,7 @@ def build(cut=False):
         [(3720, 5970, 0), (3525, 5970, 0), (3525, 4621, 0)],
         [(4820, 4930, 0), (4820, 5970, 0), (4600, 5970, 0)],
         [(4820, 3721, 0), (4820, 4150, 0)],
-        [(4090, 640, 0), (4090, 2011, 0), (4240, 2011, 0)],
+        [(4090, 1880 if CORNER else 640, 0), (4090, 2011, 0), (4240, 2011, 0)],
         [(4960, 2011, 0), (7541, 2011, 0)],
     ]
     if cut:
@@ -801,16 +808,19 @@ def build(cut=False):
         elif kind == 'sink':
             front(f'B{i}_l', x0, cx, 120, 880, FY, +1, S, handle=('knob', cx - 45, 800), hm=BR)
             front(f'B{i}_r', cx, x1, 120, 880, FY, +1, S, handle=('knob', cx + 45, 800), hm=BR)
+    if CORNER:
+        kitchen_w10_leg(X, cut)
     # пенал холодильника K-07 + доборная 40
-    box('T2_body', 3450, 4050, 0, FY, 120, 2400, S)
-    box('T2_plinth', 3452, 4048, 0, FY - 50, 0, 120, X['rubber'])
-    front('T2_freezer', 3450, 4050, 120, 800, FY, +1, S, handle=('bar', 3660, 3840, 745), hm=BR)
-    front('T2_fridge', 3450, 4050, 800, 1880, FY, +1, S, handle=('vbar', 3510, 950, 1450), hm=BR)
-    front('T2_top', 3450, 4050, 1880, 2400, FY, +1, S, handle=('knob', 3510, 1950), hm=BR)
-    box('T2_panel', 4050, 4090, 0, FY + 25, 0, 2400, S)
+    if not CORNER:
+      box('T2_body', 3450, 4050, 0, FY, 120, 2400, S)
+      box('T2_plinth', 3452, 4048, 0, FY - 50, 0, 120, X['rubber'])
+      front('T2_freezer', 3450, 4050, 120, 800, FY, +1, S, handle=('bar', 3660, 3840, 745), hm=BR)
+      front('T2_fridge', 3450, 4050, 800, 1880, FY, +1, S, handle=('vbar', 3510, 950, 1450), hm=BR)
+      front('T2_top', 3450, 4050, 1880, 2400, FY, +1, S, handle=('knob', 3510, 1950), hm=BR)
+      box('T2_panel', 4050, 4090, 0, FY + 25, 0, 2400, S)
     # столешница — кварц, вырез под мойку
     WT0, WT1 = 880, 900
-    for nm, x0, x1, y0, y1 in (('top_a', 650, 2700, 0, 640), ('top_b', 3200, 3450, 0, 640),
+    for nm, x0, x1, y0, y1 in (('top_a', 650, 2700, 0, 640), ('top_b', 3200, 4090 if CORNER else 3450, 0, 640),
                                ('top_front', 2700, 3200, 520, 640), ('top_back', 2700, 3200, 0, 120)):
         box(nm, x0, x1, y0, y1, WT0, WT1, X['quartz'], bevel=1.5, seg=2)
     sk = X['steel']
@@ -832,13 +842,14 @@ def build(cut=False):
     for i, (hx, hy, r) in enumerate([(1000, 200, 105), (1300, 200, 90), (1000, 440, 90), (1300, 440, 110)]):
         cylinder(f'hob_zone_{i}', hx, hy, WT1 + 5, WT1 + 5.3, r, X['tv_body'], seg=40)
     # фартук: керамогранит «мрамор» C9, высота 650, швы по модулям
-    xs = [650, 850, 1450, 2050, 2650, 3250, 3450]
+    xs = [650, 850, 1450, 2050, 2650, 3250, 3450] + ([4090] if CORNER else [])
     for i in range(len(xs) - 1):
         box(f'backsplash_{i}', xs[i] + 1, xs[i + 1] - 1, 0, 10, WT1 + 1, 1549, X['marble'])
     # навесные C2 «шейкер» (в «кукольном домике» не показываем)
     if not cut:
         UZ0, UZ1, UD = 1550, 2400, 330
-        uppers = [(650, 850), (850, 1450), (1450, 2050), (2050, 2650), (2650, 3250), (3250, 3450)]
+        uppers = [(650, 850), (850, 1450), (1450, 2050), (2050, 2650), (2650, 3250), (3250, 3450)] + \
+            ([(3450, 4090)] if CORNER else [])
         for i, (x0, x1) in enumerate(uppers):
             box(f'U{i}_body', x0, x1, 0, UD, UZ0, UZ1, U)
             cx = (x0 + x1) / 2
@@ -851,14 +862,14 @@ def build(cut=False):
             else:
                 hx = x0 + 45 if i == 0 else x1 - 45
                 front(f'U{i}', x0, x1, UZ0, UZ1, UD, +1, U, handle=('knob', hx, UZ0 + 60), hm=BR)
-        box('led_strip', 660, 3440, 40, 60, UZ0 - 4, UZ0 - 2, X['led'])
+        box('led_strip', 660, 4080 if CORNER else 3440, 40, 60, UZ0 - 4, UZ0 - 2, X['led'])
 
     # ---------------- ТВ-зона на W8 (y=3580): подвесная консоль, ТВ, молдинги, бра
     collection('tv_wall')
     if LAY.get('tv', True):
         tv_zone(X, S, BR)
     if LAYOUT == 'K4':
-        tv_lift(X, cut)
+        tv_swivel(X, cut)
     if not cut:
         for i, (a0, a1) in enumerate(LAY['frames']):
             frame_on_wall(f'mould_W8_{i}', ('y', 3580, -1), a0, a1, *LAY.get('frame_z', (760, 2380)), X['wall'])
@@ -936,9 +947,7 @@ def build(cut=False):
     if not cut:
         for i, (x, y) in enumerate(spots_for_layout()):
             spot(f'spot_{i}', x, y, H_K - 8, 22.0, warm, 75)
-        if LAYOUT == 'K4':  # споты в нижней плоскости короба ТВ-подъёмника
-            for i, (x, y) in enumerate(LIFT_SPOTS):
-                spot(f'lift_spot_{i}', x, y, LIFT_Z0 - 6, 14.0, warm, 75)
+
         for i, sx in enumerate(LAY['sconces']):
             point(f'sconce_l{i}', sx, 3450, 1640, 7.0, warm, 25)
         if LAYOUT == 'K4':
@@ -1076,7 +1085,8 @@ def tv_zone(X, S, BR):
 
 K4_PENDANTS = (1300, 1900, 2500)
 TABLE_STATE = 'compact'
-TV_STATE = 'up'
+CORNER = False   # угловая кухня (K4, D39): вторая ветка вдоль W10
+TV_STATE = 'kitchen'
 # ТВ-подъёмник K4 (D38): короб под потолком кухни у портала O4, ТВ 65″ опускается в проём экраном к балкону
 LIFT = (0, 1150, 700, 2400)           # короб: x0, x1, y0, y1
 LIFT_Z0 = 2490                        # низ короба (потолок кухни +2650)
@@ -1098,29 +1108,125 @@ def mat_screen_on():
     L.new(tc.outputs['Generated'], sep.inputs['Vector'])
     ramp = N.new('ShaderNodeValToRGB')
     cr = ramp.color_ramp
-    cr.elements[0].position, cr.elements[0].color = 0.0, lin('#2B3D52')
-    cr.elements[1].position, cr.elements[1].color = 1.0, lin('#F0B27C')
-    e = cr.elements.new(0.45)
-    e.color = lin('#C7735A')
+    cr.elements[0].position, cr.elements[0].color = 0.0, lin('#1C232B')
+    cr.elements[1].position, cr.elements[1].color = 1.0, lin('#4E6F93')
+    e = cr.elements.new(0.42)
+    e.color = lin('#D99A5E')
+    e2 = cr.elements.new(0.36)
+    e2.color = lin('#3A3530')
     L.new(sep.outputs['Z'], ramp.inputs['Fac'])
     em = N.new('ShaderNodeEmission')
-    em.inputs['Strength'].default_value = 2.2
+    em.inputs['Strength'].default_value = 1.8
     L.new(ramp.outputs['Color'], em.inputs['Color'])
     gl = N.new('ShaderNodeBsdfGlossy')
     gl.inputs['Roughness'].default_value = 0.05
-    ad = N.new('ShaderNodeAddShader')
-    L.new(em.outputs['Emission'], ad.inputs[0])
-    L.new(gl.outputs['BSDF'], ad.inputs[1])
-    L.new(ad.outputs['Shader'], N['Material Output'].inputs['Surface'])
+    mx = N.new('ShaderNodeMixShader')
+    mx.inputs['Fac'].default_value = 0.05
+    L.new(em.outputs['Emission'], mx.inputs[1])
+    L.new(gl.outputs['BSDF'], mx.inputs[2])
+    L.new(mx.outputs['Shader'], N['Material Output'].inputs['Surface'])
     MATS['screen_on'] = m
     return m
 
 
 def spots_for_layout():
-    if LAYOUT != 'K4':
+    if True:  # короб подъёмника заменён поворотным кронштейном (D40)
         return SPOTS
     x0, x1, y0, y1 = LIFT
     return [(x, y) for x, y in SPOTS if not (x0 - 60 <= x <= x1 + 60 and y0 - 60 <= y <= y1 + 60)]
+
+
+def kitchen_w10_leg(X, cut):
+    """Угловая кухня (D39): ветка вдоль W10 (x=4090). Строится в локальных осях (u — вдоль стены = Y мира,
+    v — от стены = 4090 − X мира, фасады смотрят в +v) и поворачивается на 90°: база 600 с ящиками
+    и пенал холодильника 600 + боковая панель 40 в торце у прихожей; навесные и фартук; угловая зона — «слепой» угол."""
+    S, U, BR = X['sage'], X['upper'], X['brass']
+    FY = 600
+    before = set(bpy.data.objects.keys())
+    collection('kitchen_w10')
+    # угол: корпус за фасадами W3 и доборная планка
+    box('corner_body', 3450, 4090, 40, FY, 120, 880, S)
+    box('corner_filler', 3450, 3471, FY, FY + 19, 120, 880, S)
+    box('corner_plinth', 3450, 3471, FY - 60, FY - 40, 0, 120, X['rubber'])
+    # база с ящиками u 640..1240, доборная u 620..640
+    box('W10_filler', 620, 640, 40, FY + 19, 120, 880, S)
+    box('W10_B_body', 640, 1240, 40, FY, 120, 880, S)
+    box('W10_B_plinth', 640, 1240, FY - 60, FY - 40, 0, 120, X['rubber'])
+    for j, (z0, z1) in enumerate([(120, 340), (340, 610), (610, 880)]):
+        front(f'W10_B_d{j}', 640, 1240, z0, z1, FY, +1, S, handle=('bar', 850, 1030, z1 - 55), hm=BR)
+    # пенал холодильника u 1240..1840 + панель 40
+    box('W10_T_body', 1240, 1840, 0, FY, 120, 2400, S)
+    box('W10_T_plinth', 1242, 1838, 0, FY - 50, 0, 120, X['rubber'])
+    front('W10_T_freezer', 1240, 1840, 120, 800, FY, +1, S, handle=('bar', 1450, 1630, 745), hm=BR)
+    front('W10_T_fridge', 1240, 1840, 800, 1880, FY, +1, S, handle=('vbar', 1300, 950, 1450), hm=BR)
+    front('W10_T_top', 1240, 1840, 1880, 2400, FY, +1, S, handle=('knob', 1300, 1950), hm=BR)
+    box('W10_T_panel', 1840, 1880, 0, FY + 25, 0, 2400, S)
+    # столешница и фартук
+    box('W10_top', 640, 1240, 0, 640, 880, 900, X['quartz'], bevel=1.5, seg=2)
+    for i, (a0, a1) in enumerate(((10, 640), (640, 1240))):
+        box(f'W10_backsplash_{i}', a0 + 1, a1 - 1, 0, 10, 901, 1549, X['marble'])
+    if not cut:
+        UZ0, UZ1, UD = 1550, 2400, 330
+        for i, (a0, a1) in enumerate(((330, 790), (790, 1240))):
+            box(f'W10_U{i}_body', a0, a1, 0, UD, UZ0, UZ1, U)
+            hx = a1 - 45 if i == 0 else a0 + 45
+            front(f'W10_U{i}', a0, a1, UZ0, UZ1, UD, +1, U, handle=('knob', hx, UZ0 + 60), hm=BR)
+        box('W10_led', 340, 1230, 40, 60, UZ0 - 4, UZ0 - 2, X['led'])
+    # поворот ветки к стене W10: (u, v) → (4090 − v, u)
+    T = Matrix.Translation((M(4090), 0, 0)) @ Matrix.Rotation(math.pi / 2, 4, 'Z')
+    for name in set(bpy.data.objects.keys()) - before:
+        if name in ('corner_body', 'corner_filler', 'corner_plinth'):
+            continue
+        o = bpy.data.objects[name]
+        o.matrix_basis = T @ o.matrix_basis
+    if not cut:
+        area('led_under_w10', 4040, 785, 1540, 20, 890, 6.0, (1.0, 0.84, 0.68))
+    collection('kitchen')
+
+
+# ТВ на поворотном настенном кронштейне (D40): крепление на простенке W2 со стороны кухни у проёма O4
+TV_MOUNT = (20, 2650, 1300)        # точка крепления (x, y, высота центра ТВ)
+TV_POS = {  # центр плоскости экрана, нормаль экрана (куда смотрит), локоть кронштейна
+    'kitchen': ((620, 3000), (0.7071, -0.7071), (53, 3208)),    # 1 — в углу кухни по диагонали, к столу и кухне
+    'balcony': ((260, 1650), (-1.0, 0.0), (363, 2207)),         # 2 — в проёме перед П-диваном
+}
+
+
+def bar_between(name, p, q, z, w, h, m):
+    """Брус между точками p и q (мм, план) на высоте z (центр), сечение w×h."""
+    dx, dy = q[0] - p[0], q[1] - p[1]
+    L_ = math.hypot(dx, dy)
+    o = box(name, -L_ / 2, L_ / 2, -w / 2, w / 2, z - h / 2, z + h / 2, m, bevel=4, seg=2)
+    o.location = (M((p[0] + q[0]) / 2), M((p[1] + q[1]) / 2), M(z))
+    o.rotation_euler = (0, 0, math.atan2(dy, dx))
+    return o
+
+
+def tv_swivel(X, cut):
+    """ТВ 65″ на поворотном кронштейне с двумя звеньями: положение 1 — сложен в углу кухни (W2/W8),
+    положение 2 — выдвинут в проём к дивану на балконе."""
+    (cx, cy), (nx, ny), elbow = TV_POS['balcony' if TV_STATE in ('balcony', 'down') else 'kitchen']
+    mx, my, zc = TV_MOUNT
+    W_, H_ = TV65
+    BZ = X['bronze']
+    th = math.atan2(-nx, ny)  # поворот локальной +Y (лицо экрана) в направление нормали
+    body = box('tv_body', -W_ / 2, W_ / 2, -45, -2, -H_ / 2, H_ / 2, X['tv_body'], bevel=3)
+    on = TV_STATE in ('balcony', 'down')
+    scr = box('tv_screen', -W_ / 2 + 6, W_ / 2 - 6, -2, 0, -H_ / 2 + 6, H_ / 2 - 6, mat_screen_on() if on else X['tv'])
+    for o in (body, scr):
+        loc = Vector(o.location)
+        c, s_ = math.cos(th), math.sin(th)
+        o.location = (M(cx) + loc.x * c - loc.y * s_, M(cy) + loc.x * s_ + loc.y * c, M(zc) + loc.z)
+        o.rotation_euler = (0, 0, th)
+    back = (cx - nx * 60, cy - ny * 60)
+    box('tv_mount_plate', 0, 18, my - 70, my + 70, zc - 160, zc + 160, BZ, bevel=3)
+    for k, dz in enumerate((-60, 60)):
+        bar_between(f'tv_arm1_{k}', (mx, my), elbow, zc + dz, 40, 28, BZ)
+        bar_between(f'tv_arm2_{k}', elbow, back, zc + dz, 40, 28, BZ)
+    cylinder('tv_elbow', elbow[0], elbow[1], zc - 90, zc + 90, 26, BZ)
+    tp = box('tv_back_plate', -200, 200, -15, 15, -150, 150, BZ, bevel=3)
+    tp.location = (M(back[0]), M(back[1]), M(zc))
+    tp.rotation_euler = (0, 0, th)
 
 
 def tv_lift(X, cut):
@@ -1291,11 +1397,11 @@ LAYOUTS = {
         sconces=(725, 3050), table=(1900, 2580), pendant_z0=2650, chairs=[],
         cams={
             'V1': ((4300, 2750, 1600), (-1500, 1550, 900), 20),    # общий вид из прихожей: стол на 10 и балкон
-            'V2': ((3800, 750, 1550), (900, 3000, 900), 19),       # стол от торца кухни
-            'V3': ((3300, 3400, 1300), (1600, 0, 1050), 19),       # кухонный фронт из-за стола
+            'V2': ((3300, 1000, 1550), (700, 3000, 950), 19),      # стол и ТВ в углу от угловой кухни
+            'V3': ((2100, 3350, 1300), (3600, 250, 1050), 19),     # угловая кухня из-за стола
             'V4': ((-1300, 900, 1250), (2600, 2800, 950), 19),     # с балкона из «П» на кухню
             'V5': ((500, 1500, 1450), (-2100, 1556, 550), 20),     # П-образный диван через портал
-            'V7': ((-2050, 1556, 1150), (600, 1540, 1350), 22),    # «Кино»: вид с дивана на ТВ в проёме
+            'V7': ((-2050, 1556, 1150), (600, 1650, 1300), 22),    # «Кино»: вид с дивана на ТВ в проёме
             'V6': ((770, 845, 11400), (770, 1745, 0), 48),         # 3D-план сверху (запуск с --cut)
         }),
 }
@@ -1614,7 +1720,8 @@ def main():
     ap.add_argument('--samples', type=int, default=256)
     ap.add_argument('--out', default=str(OUT / 'renders'))
     ap.add_argument('--cut', action='store_true', help='сцена «кукольный домик» (для V6)')
-    ap.add_argument('--tv', default='up', choices=('up', 'down'), help='K4: ТВ-подъёмник убран или опущен')
+    ap.add_argument('--tv', default='kitchen', choices=('kitchen', 'balcony'),
+                    help='K4: ТВ на кронштейне — 1 в углу кухни или 2 в проёме перед диваном')
     ap.add_argument('--table', default='compact', choices=('compact', 'extended'),
                     help='K4: раздвижной стол сложен (4 персоны) или разложен (10)')
     ap.add_argument('--layout', default='K2', choices=sorted(LAYOUTS), help='эскиз заказчика: K2 или K3')
@@ -1624,8 +1731,9 @@ def main():
     res = tuple(int(v) for v in a.res.lower().split('x'))
     Path(a.out).mkdir(parents=True, exist_ok=True)
     t = time.time()
-    global LAYOUT, LAY, TABLE_STATE, TV_STATE
+    global LAYOUT, LAY, TABLE_STATE, TV_STATE, CORNER
     LAYOUT, LAY, TABLE_STATE, TV_STATE = a.layout, LAYOUTS[a.layout], a.table, a.tv
+    CORNER = LAYOUT == 'K4'
     build(cut=a.cut)
     if a.threads:
         bpy.context.scene.render.threads_mode = 'FIXED'
@@ -1636,7 +1744,7 @@ def main():
         print('  .blend:', a.blend)
     for v in [v for v in a.views.split(',') if v]:
         tag = a.layout + ('-ext' if a.layout == 'K4' and a.table == 'extended' else '') + \
-            ('-tv' if a.layout == 'K4' and a.tv == 'down' else '')
+            ('-tv' if a.layout == 'K4' and a.tv == 'balcony' else '')
         render(v, res, a.samples, a.out, EXPOSURE.get(v, 0.0), tag)
 
 
