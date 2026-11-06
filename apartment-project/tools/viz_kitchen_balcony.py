@@ -22,7 +22,7 @@ from pathlib import Path
 import bpy  # noqa: I001 — bpy первым: он подключает bmesh и mathutils
 import bmesh
 from mathutils import Matrix, Vector, noise
-from shapely.geometry import Polygon, MultiPolygon
+from shapely.geometry import Polygon, MultiPolygon, box as sbox
 from shapely.geometry.polygon import orient
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -295,7 +295,7 @@ def mat_leaves(name, color):
 
 def materials():
     C = PAL
-    return {
+    X = {
         'wall': mat('wall_C2', C['C2'], 0.85, bump=0.15),
         'ceil': mat('ceil_C1', C['C1'], 0.9),
         'white': mat('trim_C1', C['C1'], 0.55),
@@ -338,6 +338,84 @@ def materials():
         'rubber': mat('black_matte', '#121212', 0.7),
         'cut_wall': mat('cut_wall', '#E9E6DF', 0.9),
         'plan_ground': mat('plan_ground', '#E4E1DA', 0.95),
+    }
+    X['balc_ceil'] = X['olive']
+    X['sink'] = X['steel']
+    X['tap'] = X['brass']
+    if STYLE == 'greige':
+        X.update(materials_greige())
+    return X
+
+
+def mat_petal():
+    """Литое «водяное» стекло подвесок люстры: прозрачность, блик по Френелю, лёгкая матовость, волнистый рельеф."""
+    if 'petal' in MATS:
+        return MATS['petal']
+    m = _newmat('petal_glass')
+    N, L = m.node_tree.nodes, m.node_tree.links
+    N.remove(N['Principled BSDF'])
+    tc = N.new('ShaderNodeTexCoord')
+    nz = N.new('ShaderNodeTexNoise')
+    nz.inputs['Scale'].default_value = 18.0
+    nz.inputs['Detail'].default_value = 3.0
+    nz.inputs['Distortion'].default_value = 1.5
+    L.new(tc.outputs['Object'], nz.inputs['Vector'])
+    bp = N.new('ShaderNodeBump')
+    bp.inputs['Strength'].default_value = 0.5
+    bp.inputs['Distance'].default_value = 0.004
+    L.new(nz.outputs['Fac'], bp.inputs['Height'])
+    tr = N.new('ShaderNodeBsdfTransparent')
+    tr.inputs['Color'].default_value = (0.90, 0.89, 0.87, 1)
+    tl = N.new('ShaderNodeBsdfTranslucent')
+    tl.inputs['Color'].default_value = (0.92, 0.90, 0.87, 1)
+    L.new(bp.outputs['Normal'], tl.inputs['Normal'])
+    gl = N.new('ShaderNodeBsdfGlossy')
+    gl.inputs['Roughness'].default_value = 0.06
+    L.new(bp.outputs['Normal'], gl.inputs['Normal'])
+    m1 = N.new('ShaderNodeMixShader')
+    m1.inputs['Fac'].default_value = 0.22
+    L.new(tr.outputs['BSDF'], m1.inputs[1])
+    L.new(tl.outputs['BSDF'], m1.inputs[2])
+    lw = N.new('ShaderNodeLayerWeight')
+    lw.inputs['Blend'].default_value = 0.3
+    L.new(bp.outputs['Normal'], lw.inputs['Normal'])
+    m2 = N.new('ShaderNodeMixShader')
+    L.new(lw.outputs['Fresnel'], m2.inputs['Fac'])
+    L.new(m1.outputs['Shader'], m2.inputs[1])
+    L.new(gl.outputs['BSDF'], m2.inputs[2])
+    L.new(m2.outputs['Shader'], N['Material Output'].inputs['Surface'])
+    m.diffuse_color = (0.9, 0.9, 0.9, 0.3)
+    MATS['petal'] = m
+    return m
+
+
+def materials_greige():
+    """K5 (D43): «современная классика» по референсам заказчика (01-input/refs/style-ref-*.jpg) — тёплый грейж,
+    гладкие фасады с латунными профилями-ручками, рифлёный верх кухни, мрамор, полированный керамогранит,
+    бархат тауп, латунь «шампань», стеклянная люстра."""
+    return {
+        'wall': mat('wall_greige', '#E2DBD1', 0.85, bump=0.12),
+        'ceil': mat('ceil_white', '#F3F1ED', 0.9),
+        'white': mat('trim_white', '#F0EDE8', 0.5),
+        'sage': mat('front_taupe', '#CCC2B7', 0.42, spec=0.4),     # низ кухни и пеналы
+        'upper': mat('front_ivory', '#ECE8E2', 0.42, spec=0.4),    # навесные, рифлёный верх, шкаф прихожей
+        'olive': mat('balcony_greige', '#DCD4C9', 0.85, bump=0.1),
+        'balc_ceil': mat('ceil_white', '#F3F1ED', 0.9),
+        'brass': mat('champagne_brass', '#C49E7D', 0.26, metal=1.0),
+        'quartz': mat_marble('marble_worktop', '#ECE8E3', '#B3A99E', scale=0.55, rough=0.16, veins=0.02),
+        'marble': mat_marble('marble_backsplash', '#D4CCC2', '#A99E92', scale=0.45, rough=0.2, veins=0.03),
+        'floor_tile': mat_marble('porcelain_floor', '#EAE5DE', '#C6BDB3', scale=0.3, rough=0.06, veins=0.012),
+        'grout': mat('grout', '#CFC8BF', 0.8),
+        'chair': mat('velvet_taupe', '#978779', 0.8, sheen=1.0, bump=0.15),
+        'sofa': mat('sofa_ivory', '#E2DACE', 0.9, sheen=0.6, bump=0.25),
+        'pillow_a': mat('pillow_taupe', '#8B7A6D', 0.85, sheen=0.7, bump=0.2),
+        'pillow_b': mat('pillow_sand', '#CBB8A2', 0.85, sheen=0.7, bump=0.2),
+        'table_top': mat_marble('table_marble', '#F2F0ED', '#A9A39C', scale=0.6, rough=0.1, veins=0.02),
+        'curtain': mat('curtain_taupe', '#8C7C6F', 0.9, sheen=0.8, bump=0.2),
+        'sheer': mat_sheer('sheer_white', '#F3F0EA', transp=0.55),
+        'petal': mat_petal(),
+        'sink': mat('sink_black', '#1E1E1E', 0.35),
+        'tap': mat('tap_nickel', '#BDBAB4', 0.22, metal=1.0),
     }
 
 
@@ -549,6 +627,19 @@ def front(name, x0, x1, z0, z1, yb, nsign, m, style='shaker', handle=None, hm=No
     y0, y1 = yb, yb + nsign * t
     box(name, xa, xb, y0, y1, za, zb, m, bevel=1.2, seg=1)
     yf = y1
+    if FRONT_STYLE == 'flat' and style == 'shaker':
+        # гладкий фасад; вместо ручки — латунный профиль по кромке (врезан в фасад на 2 мм, выступ 3 мм)
+        if handle and hm is not None:
+            kind, *pos = handle
+            ya, yb_ = y1 - nsign * 2, y1 + nsign * 3
+            if kind == 'vbar':
+                sx0, sx1 = (xa + 0.5, xa + 12) if abs(pos[0] - xa) < abs(pos[0] - xb) else (xb - 12, xb - 0.5)
+                box(name + '_prof', sx0, sx1, ya, yb_, za + 0.5, zb - 0.5, hm)
+            else:
+                hz = pos[-1]
+                sz0, sz1 = (za + 0.5, za + 12) if (kind == 'knob' and hz < (za + zb) / 2) else (zb - 12, zb - 0.5)
+                box(name + '_prof', xa + 0.5, xb - 0.5, ya, yb_, sz0, sz1, hm)
+        return y1
     if style == 'shaker' and (xb - xa) > 160 and (zb - za) > 160:
         w = 62 if (xb - xa) > 260 else 48
         d = 6
@@ -570,6 +661,69 @@ def front(name, x0, x1, z0, z1, yb, nsign, m, style='shaker', handle=None, hm=No
             hx, hz0, hz1 = pos
             vbar_pull(name + '_h', hx, yf, hz0, hz1, nsign, hm)
     return yf
+
+
+def flutes(name, axis, c, s0, s1, z0, z1, nsign, m, pitch=25, depth=7, k=8):
+    """Рифлёная панель («флейты»): в плоскости axis=c ('y' — плоскость y=c, вдоль X; 'x' — x=c, вдоль Y),
+    от s0 до s1 по высоте z0..z1, полукруглые трубки с шагом pitch выступают на depth в сторону nsign."""
+    n = max(1, int(round(abs(s1 - s0) / pitch)))
+    p = (s1 - s0) / n
+    ss, dd = [], []
+    for i in range(n):
+        for j in range(k):
+            t = j / k
+            ss.append(s0 + p * (i + t))
+            dd.append(depth * math.sqrt(max(0.0, math.sin(math.pi * t))))
+    ss.append(s1)
+    dd.append(0.0)
+    bm = bmesh.new()
+
+    def V(s_, d_, z_):
+        if axis == 'y':
+            return bm.verts.new((M(s_), M(c + nsign * d_), M(z_)))
+        return bm.verts.new((M(c + nsign * d_), M(s_), M(z_)))
+    fb = [V(a, d + 1, z0) for a, d in zip(ss, dd)]
+    ft = [V(a, d + 1, z1) for a, d in zip(ss, dd)]
+    bb = [V(a, -1, z0) for a in ss]
+    bt = [V(a, -1, z1) for a in ss]
+    for i in range(len(ss) - 1):
+        f = bm.faces.new([fb[i], fb[i + 1], ft[i + 1], ft[i]])
+        f.smooth = True
+        bm.faces.new([bb[i + 1], bb[i], fb[i], fb[i + 1]])
+        bm.faces.new([ft[i], ft[i + 1], bt[i + 1], bt[i]])
+        bm.faces.new([bt[i], bt[i + 1], bb[i + 1], bb[i]])
+    bm.faces.new([bb[0], bt[0], ft[0], fb[0]])
+    bm.faces.new([fb[-1], ft[-1], bt[-1], bb[-1]])
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    me = bpy.data.meshes.new(name)
+    bm.to_mesh(me)
+    bm.free()
+    return link(name, me, [m])
+
+
+def tile_floor(name, region, m, grout, L=1200, W=600, gap=2, x0=0, y0=0, z0=-8):
+    """Крупноформатный керамогранит L×W (по X × по Y) со швом gap; у каждой плитки свой рисунок «мрамора»
+    (сдвиг текстурных координат объекта)."""
+    minx, miny, maxx, maxy = region.bounds
+    n = 0
+    for i in range(math.floor((minx - x0) / L), math.ceil((maxx - x0) / L)):
+        for j in range(math.floor((miny - y0) / W), math.ceil((maxy - y0) / W)):
+            cell = sbox(x0 + i * L + gap / 2, y0 + j * W + gap / 2, x0 + (i + 1) * L - gap / 2, y0 + (j + 1) * W - gap / 2)
+            g = cell.intersection(region)
+            parts = list(g.geoms) if hasattr(g, 'geoms') else [g]
+            for part in parts:
+                if not isinstance(part, Polygon) or part.area < 400:
+                    continue
+                o = prism(f'{name}_{n}', list(orient(part.simplify(0.05), 1.0).exterior.coords)[:-1], z0, 0, m)
+                off = Vector((RND.uniform(-30, 30), RND.uniform(-30, 30), RND.uniform(-3, 3)))
+                o.data.transform(Matrix.Translation(-off))
+                o.location = off
+                bv = o.modifiers.new('bevel', 'BEVEL')
+                bv.width = 0.0012
+                bv.segments = 2
+                n += 1
+    prism(name + '_grout', list(region.exterior.coords)[:-1], z0 - 2, -1.5, grout)
+    return n
 
 
 # ---------------------------------------------------------------- пол «ёлочкой»
@@ -687,9 +841,13 @@ def build(cut=False):
     if cut:  # в «кукольном домике» — только кухня-гостиная и балкон
         kitchen = Polygon([(0, 0), (4090, 0), (4090, 3580), (0, 3580)])
     region = kitchen.union(portal).union(balcony)
-    _, n = herringbone('floor_herringbone', region, X['oak_floor'])
-    print(f'  ёлочка: {n} досок')
-    prism('subfloor', list(region.buffer(5).exterior.coords)[:-1], -10, -3, X['sub'])
+    if STYLE == 'greige':  # K5: полированный керамогранит «мрамор» 1200×600 (D43)
+        n = tile_floor('floor_tile', region, X['floor_tile'], X['grout'])
+        print(f'  керамогранит: {n} плиток')
+    else:
+        _, n = herringbone('floor_herringbone', region, X['oak_floor'])
+        print(f'  ёлочка: {n} досок')
+        prism('subfloor', list(region.buffer(5).exterior.coords)[:-1], -10, -3, X['sub'])
     box('profile_brass', -213, -207, 590, OT, -1, 1.5, X['brass'])
 
     # ---------------- стены (мм)
@@ -730,11 +888,20 @@ def build(cut=False):
     if not cut:
         collection('ceiling')
         prism('ceiling_kitchen_hall', list(kitchen.exterior.coords)[:-1], H_K, H_K + 30, X['ceil'])
+        TALLC = X['sage'] if STYLE == 'greige' else X['upper']  # K5: пеналы в цвет низа до карниза
         box('CB1_upper', 650, 4090 if CORNER else 3450, 0, 350, 2400, H_K, X['upper'])
-        box('CB1_tall_l', 0, 650, 0, 620, 2400, H_K, X['upper'])
+        box('CB1_tall_l', 0, 650, 0, 620, 2400, H_K, TALLC)
         if CORNER:
             box('CB1_w10', 3740, 4090, 350, 1240, 2400, H_K, X['upper'])
-            box('CB1_fridge', 3470, 4090, 1240, 1880, 2400, H_K, X['upper'])
+            box('CB1_fridge', 3470, 4090, 1240, 1880, 2400, H_K, TALLC)
+        if STYLE == 'greige':
+            # рифлёный пояс над навесными и латунная полоса под ним (референс 1)
+            xe = 3740 if CORNER else 3450
+            flutes('CB1_flutes_w3', 'y', 350, 650, xe, 2411, H_K - 78, +1, X['upper'])
+            box('CB1_strip_w3', 650, xe + (8 if CORNER else 0), 344, 358, 2401, 2412, X['brass'])
+            if CORNER:
+                flutes('CB1_flutes_w10', 'x', 3740, 350, 1240, 2411, H_K - 78, -1, X['upper'])
+                box('CB1_strip_w10', 3732, 3746, 358, 1240, 2401.3, 2411.7, X['brass'])
             ring = [(0, 620), (650, 620), (650, 350), (3740, 350), (3740, 1240), (3470, 1240), (3470, 1880),
                     (4090, 1880), (4090, 2011),
                     (7541, 2011), (7541, 3121), (4820, 3121), (4820, 5970), (3525, 5970), (3525, 3580), (0, 3580)]
@@ -746,12 +913,12 @@ def build(cut=False):
         sweep('cornice_kitchen', [(x, y, H_K) for x, y in list(rp.exterior.coords)[:-1]], (0, 0, 1), CORNICE,
               X['ceil'], closed=True)
         # балкон: потолок +2500 (C6), ниша штор CN-3 150 до +2600 по контуру остекления
-        box('ceiling_balcony', -2281, -420, 195, 2918, H_B, H_B + 40, X['olive'])
-        box('niche_balcony', -2531, -420, -55, 3168, 2600, 2640, X['olive'])
-        box('niche_side_B1', -2300, -2281, 195, 2918, H_B, 2600, X['olive'])
-        box('niche_side_B2', -2281, -420, 2918, 2937, H_B, 2600, X['olive'])
-        box('niche_side_B3', -2281, -420, 176, 195, H_B, 2600, X['olive'])
-        if LAYOUT == 'K4':
+        box('ceiling_balcony', -2281, -420, 195, 2918, H_B, H_B + 40, X['balc_ceil'])
+        box('niche_balcony', -2531, -420, -55, 3168, 2600, 2640, X['balc_ceil'])
+        box('niche_side_B1', -2300, -2281, 195, 2918, H_B, 2600, X['balc_ceil'])
+        box('niche_side_B2', -2281, -420, 2918, 2937, H_B, 2600, X['balc_ceil'])
+        box('niche_side_B3', -2281, -420, 176, 195, H_B, 2600, X['balc_ceil'])
+        if LAYOUT in ('K4', 'K5'):
             for i, (x, y) in enumerate(((-1500, 900), (-1500, 2200))):
                 cylinder(f'balc_downlight_{i}', x, y, H_B - 4, H_B, 40, X['trim_ring'], seg=24)
                 cylinder(f'balc_downlight_lens_{i}', x, y, H_B - 6, H_B - 4, 28, X['led'], seg=24)
@@ -823,7 +990,7 @@ def build(cut=False):
     for nm, x0, x1, y0, y1 in (('top_a', 650, 2700, 0, 640), ('top_b', 3200, 4090 if CORNER else 3450, 0, 640),
                                ('top_front', 2700, 3200, 520, 640), ('top_back', 2700, 3200, 0, 120)):
         box(nm, x0, x1, y0, y1, WT0, WT1, X['quartz'], bevel=1.5, seg=2)
-    sk = X['steel']
+    sk = X['sink']
     box('sink_bottom', 2700, 3200, 120, 520, 690, 700, sk)
     box('sink_wall_f', 2700, 3200, 510, 520, 700, WT0, sk)
     box('sink_wall_b', 2700, 3200, 120, 130, 700, WT0, sk)
@@ -831,12 +998,13 @@ def build(cut=False):
     box('sink_wall_r', 3190, 3200, 120, 520, 700, WT0, sk)
     cylinder('sink_drain', 2950, 320, 700, 702, 40, sk)
     # смеситель — латунь, гусак
-    cylinder('tap_base', 2950, 70, WT1, WT1 + 30, 28, BR)
-    cylinder('tap_body', 2950, 70, WT1 + 30, WT1 + 300, 14, BR)
+    TP = X['tap']
+    cylinder('tap_base', 2950, 70, WT1, WT1 + 30, 28, TP)
+    cylinder('tap_body', 2950, 70, WT1 + 30, WT1 + 300, 14, TP)
     sweep('tap_spout', [(2950, 70, WT1 + 290), (2950, 95, WT1 + 345), (2950, 160, WT1 + 378), (2950, 230, WT1 + 365),
                         (2950, 275, WT1 + 315), (2950, 290, WT1 + 255)], (1, 0, 0),
-          [(-10, -10), (10, -10), (10, 10), (-10, 10)], BR, closed_prof=True)
-    box('tap_lever', 2985, 3060, 62, 78, WT1 + 214, WT1 + 228, BR, bevel=4)
+          [(-10, -10), (10, -10), (10, 10), (-10, 10)], TP, closed_prof=True)
+    box('tap_lever', 2985, 3060, 62, 78, WT1 + 214, WT1 + 228, TP, bevel=4)
     # индукционная панель
     box('hob', 855, 1445, 60, 580, WT1, WT1 + 5, X['black_glass'], bevel=2)
     for i, (hx, hy, r) in enumerate([(1000, 200, 105), (1300, 200, 90), (1000, 440, 90), (1300, 440, 110)]):
@@ -868,7 +1036,7 @@ def build(cut=False):
     collection('tv_wall')
     if LAY.get('tv', True):
         tv_zone(X, S, BR)
-    if LAYOUT == 'K4':
+    if LAYOUT in ('K4', 'K5'):
         projector_cinema(X, cut)
     if not cut:
         for i, (a0, a1) in enumerate(LAY['frames']):
@@ -914,12 +1082,16 @@ def build(cut=False):
             curtain('curtain_B1_b', 'x', -2370, 2560, 3010, X)
             curtain('curtain_B3', 'y', 110, -2380, -1990, X)
             curtain('curtain_B2', 'y', 3005, -2380, -1990, X)
+        if LAYOUT == 'K5':
+            curtains_k5(X)
 
     # ---------------- столовая: K2 — на балконе, K3 — в кухне
     collection('dining')
     TX, TY = LAY['table']
     if LAYOUT == 'K4':
         dining_long(X, cut)
+    elif LAYOUT == 'K5':
+        dining_k5(X, cut)
     else:
         dining(X, TX, TY, LAY['chairs'], cut, LAY['pendant_z0'])
 
@@ -950,9 +1122,12 @@ def build(cut=False):
 
         for i, sx in enumerate(LAY['sconces']):
             point(f'sconce_l{i}', sx, 3450, 1640, 7.0, warm, 25)
-        if LAYOUT == 'K4':
-            for i, px in enumerate(K4_PENDANTS):
-                point(f'pendant_light_{i}', px, 2580, 1720, 28.0, warm, 70)
+        if LAYOUT == 'K5':
+            point('chandelier_light', K5_TABLE_X0 + 700, 2585, 2000, 55.0, warm, 160)
+        if LAYOUT in ('K4', 'K5'):
+            if LAYOUT == 'K4':
+                for i, px in enumerate(K4_PENDANTS):
+                    point(f'pendant_light_{i}', px, 2580, 1720, 28.0, warm, 70)
             for i, (bx_, by_) in enumerate(((-1500, 900), (-1500, 2200))):
                 spot(f'balcony_spot_{i}', bx_, by_, H_B - 8, 14.0, warm, 80)
         else:
@@ -1085,6 +1260,8 @@ def tv_zone(X, S, BR):
 
 K4_PENDANTS = (1300, 1900, 2500)
 TABLE_STATE = 'compact'
+STYLE = 'classic'      # 'greige' — K5: стилистика по референсам заказчика (D43)
+FRONT_STYLE = 'shaker'  # 'flat' — гладкие фасады с латунными профилями-ручками (K5)
 CORNER = False   # угловая кухня (K4, D39): вторая ветка вдоль W10
 TV_STATE = 'kitchen'
 # ТВ-подъёмник K4 (D38): короб под потолком кухни у портала O4, ТВ 65″ опускается в проём экраном к балкону
@@ -1194,6 +1371,9 @@ def kitchen_w10_leg(X, cut):
     if not cut:
         UZ0, UZ1, UD = 1550, 2400, 330
         for i, (a0, a1) in enumerate(((330, 790), (790, 1240))):
+            if STYLE == 'greige':  # K5: пара витрин в латунных рамках (референс 1)
+                vitrine(f'W10_V{i}', a0, a1, UZ0, UZ1, UD, X)
+                continue
             box(f'W10_U{i}_body', a0, a1, 0, UD, UZ0, UZ1, U)
             hx = a1 - 45 if i == 0 else a0 + 45
             front(f'W10_U{i}', a0, a1, UZ0, UZ1, UD, +1, U, handle=('knob', hx, UZ0 + 60), hm=BR)
@@ -1208,6 +1388,42 @@ def kitchen_w10_leg(X, cut):
     if not cut:
         area('led_under_w10', 4040, 785, 1540, 20, 890, 6.0, (1.0, 0.84, 0.68))
     collection('kitchen')
+
+
+def wine_glass(name, x, y, z, m):
+    return lathe(name, [(0, z), (32, z), (32, z + 2), (4, z + 6), (3, z + 85), (22, z + 100), (36, z + 140),
+                        (38, z + 190), (36.5, z + 190), (34.5, z + 140), (20.5, z + 101), (0, z + 92)], x, y, m,
+                 seg=32, caps=False)
+
+
+def vitrine(nm, a0, a1, z0, z1, D, X):
+    """Навесная витрина в осях front(): x вдоль стены a0..a1, y от стены 0..D, дверь смотрит в +y.
+    Корпус в цвет навесных, задняя стенка — тёмная бронза, две стеклянные полки, подсветка, бокалы,
+    дверь — стекло в латунной рамке 20 мм."""
+    U, BR, GL = X['upper'], X['brass'], X['glass']
+    t = 18
+    box(nm + '_back', a0, a1, 0, 8, z0, z1, X['bronze'])
+    box(nm + '_side_l', a0, a0 + t, 8, D, z0, z1, U)
+    box(nm + '_side_r', a1 - t, a1, 8, D, z0, z1, U)
+    box(nm + '_bottom', a0 + t, a1 - t, 8, D, z0, z0 + t, U)
+    box(nm + '_top', a0 + t, a1 - t, 8, D, z1 - t, z1, U)
+    h = (z1 - z0 - 2 * t) / 3
+    levels = [z0 + t, z0 + t + h, z0 + t + 2 * h]
+    for k, zz in enumerate(levels[1:]):
+        box(f'{nm}_shelf{k}', a0 + t + 1, a1 - t - 1, 12, D - 25, zz - 4, zz + 4, GL)
+    for k, zz in enumerate(levels):
+        n = 3 if (a1 - a0) > 420 else 2
+        for g in range(n):
+            gx = a0 + t + (a1 - a0 - 2 * t) * (g + 0.5) / n
+            wine_glass(f'{nm}_glass{k}_{g}', gx, D * 0.45 + (g % 2) * 40, zz + (4 if k else 0), GL)
+    box(nm + '_led', a0 + t + 10, a1 - t - 10, D - 70, D - 55, z1 - t - 3, z1 - t - 1, X['led'])
+    area(nm + '_light', (a0 + a1) / 2, D / 2, z1 - t - 6, a1 - a0 - 60, D - 60, 2.5, (1.0, 0.84, 0.68))
+    fr, y0, y1 = 20, D, D + 19
+    box(nm + '_fl', a0 + 1.5, a0 + 1.5 + fr, y0, y1, z0 + 1.5, z1 - 1.5, BR)
+    box(nm + '_fr', a1 - 1.5 - fr, a1 - 1.5, y0, y1, z0 + 1.5, z1 - 1.5, BR)
+    box(nm + '_fb', a0 + 1.5 + fr, a1 - 1.5 - fr, y0, y1, z0 + 1.5, z0 + 1.5 + fr, BR)
+    box(nm + '_ft', a0 + 1.5 + fr, a1 - 1.5 - fr, y0, y1, z1 - 1.5 - fr, z1 - 1.5, BR)
+    box(nm + '_door_glass', a0 + 1.5 + fr, a1 - 1.5 - fr, y0 + 8, y0 + 11, z0 + 1.5 + fr, z1 - 1.5 - fr, GL)
 
 
 # ТВ на поворотном настенном кронштейне (D40): крепление на простенке W2 со стороны кухни у проёма O4
@@ -1265,6 +1481,8 @@ PROJ = (-2140, 1520, 2390)               # объектив: x, y, z (потол
 def projector_cinema(X, cut):
     """Короб с экраном в кухне и проектор на потолке балкона. TV_STATE 'balcony' — экран опущен, идёт картинка."""
     x0, x1, y0, y1, zb = SCREEN_BOX
+    if LAYOUT == 'K5':  # проём расширен до торца балкона — короб-ламбрекен на всю ширину проёма
+        y1 = 3138
     on = TV_STATE == 'balcony'
     if not cut:
         box('screen_box', x0, x1, y0, y1, zb, 2650, X['ceil'])
@@ -1391,6 +1609,118 @@ def dining_long(X, cut):
             globe_pendant(f'pendant_{i}', px, 2580, 2650, 130, 1720, X)
 
 
+def chandelier(name, x, y, ceil, X, z_top=2160):
+    """Люстра по референсу: три яруса латунных колец с подвесками из литого стекла, лампы внутри.
+    Ø ≈ 900, низ ≈ +1700 (над столом ≈ 940)."""
+    BR, P = X['brass'], X['petal']
+    cylinder(name + '_canopy', x, y, ceil - 22, ceil, 70, BR, seg=40)
+    cylinder(name + '_rod', x, y, z_top - 260, ceil - 22, 7, BR, seg=16)
+    bm = bmesh.new()
+    bmesh.ops.create_uvsphere(bm, u_segments=20, v_segments=12, radius=1.0)
+    for v in bm.verts:
+        v.co = Vector((v.co.x * M(58), v.co.y * M(6), v.co.z * M(98)))
+    pm = bpy.data.meshes.new(name + '_petal')
+    bm.to_mesh(pm)
+    bm.free()
+    pm.materials.append(P)
+    pm.shade_smooth()
+    rnd = random.Random(7)
+    tiers = [(420, z_top, 30), (330, z_top - 130, 24), (230, z_top - 260, 18)]
+    for t, (R, zr, n) in enumerate(tiers):
+        lathe(f'{name}_ring{t}', [(R - 5, zr - 4), (R + 5, zr - 4), (R + 5, zr + 4), (R - 5, zr + 4), (R - 5, zr - 4)],
+              x, y, BR, seg=96, caps=False)
+        for k in range(4):
+            a = math.pi / 4 + k * math.pi / 2
+            bar_between(f'{name}_spoke{t}_{k}', (x, y), (x + (R - 5) * math.cos(a), y + (R - 5) * math.sin(a)),
+                        zr, 8, 8, BR)
+        for row, (dr, dz, da) in enumerate(((0, 0, 0.0), (-35, -70, 0.5))):
+            for k in range(n):
+                a = 2 * math.pi * (k + da) / n
+                o = bpy.data.objects.new(f'{name}_p{t}_{row}_{k}', pm)
+                COL['cur'].objects.link(o)
+                rr = R + dr
+                o.location = (M(x + rr * math.cos(a)), M(y + rr * math.sin(a)), M(zr - 100 + dz + rnd.uniform(-12, 12)))
+                o.rotation_euler = (math.radians(rnd.uniform(-6, 6)), math.radians(rnd.uniform(-8, 8)), a - math.pi / 2)
+                o.visible_shadow = False
+    for t, (R, zr, n) in enumerate(tiers):
+        for k in range(3 if t < 2 else 2):
+            a = 2 * math.pi * k / (3 if t < 2 else 2) + t
+            b = lathe(f'{name}_bulb{t}_{k}', [(0, zr - 95), (18, zr - 88), (24, zr - 70), (18, zr - 52), (8, zr - 45),
+                                              (8, zr - 20), (0, zr - 20)], x + 0.45 * R * math.cos(a),
+                      y + 0.45 * R * math.sin(a), X['opal'], seg=24)
+            b.visible_shadow = False
+            bar_between(f'{name}_bulbarm{t}_{k}', (x, y), (x + 0.45 * R * math.cos(a), y + 0.45 * R * math.sin(a)),
+                        zr - 12, 6, 6, BR)
+
+
+K5_TABLE_X0 = 150        # K5: западный торец стола — у проёма (стол сдвинут к балкону, D42)
+
+
+def dining_k5(X, cut):
+    """K5: раздвижной овальный стол со столешницей «белый мрамор» (керамика) на двух Х-образных опорах цвета
+    «шампань»; кресла-«корзины» в бархате тауп на тонких металлических ножках; люстра из литого стекла.
+    Сложен 1400 — 4 персоны, разложен 2400 — 10. Стол сдвинут к балкону: торец у проёма, x 150…."""
+    ext = TABLE_STATE == 'extended'
+    TYC, R_ = 2585, 500
+    L_ = 2400 if ext else 1400
+    TX0 = K5_TABLE_X0
+    TX1 = TX0 + L_
+    TOP = X['table_top']
+
+    def end_piece(nm, xa, xb, sign):
+        cx = xa + R_ if sign < 0 else xb - R_
+        base = xb if sign < 0 else xa
+        pts = [(base, TYC - R_)] + [(cx + sign * R_ * math.sin(math.radians(t)), TYC - R_ * math.cos(math.radians(t)))
+                                    for t in range(0, 181, 4)] + [(base, TYC + R_)]
+        o = prism(nm, pts, 728, 760, TOP)
+        md = o.modifiers.new('bevel', 'BEVEL')
+        md.width = 0.003
+        md.segments = 3
+        md.limit_method = 'ANGLE'
+    end_piece('table_end_w', TX0, TX0 + 700 - 1, -1)
+    end_piece('table_end_e', TX1 - 700 + 1, TX1, +1)
+    if ext:
+        for i, x0 in enumerate((TX0 + 700, TX0 + 1200)):
+            box(f'table_leaf_{i}', x0 + 1, x0 + 499, TYC - R_, TYC + R_, 728, 760, TOP, bevel=2.5, seg=2)
+    BZ = X['brass']
+    box('table_rail', TX0 + 300, TX1 - 300, TYC - 330, TYC + 330, 700, 728, X['bronze'], bevel=2)
+    # две Х-образные опоры (в плоскости YZ) и продольная царга-перемычка
+    for k, px in enumerate((TX0 + 380, TX1 - 380)):
+        for j, sg in enumerate((+1, -1)):
+            ya, yb = TYC - sg * 300, TYC + sg * 400          # верх / низ ноги
+            dy, dz = yb - ya, -700
+            Ll = math.hypot(dy, dz)
+            leg = box(f'table_leg_{k}_{j}', px - 35, px + 35, -12, 12, -Ll / 2, Ll / 2, BZ, bevel=3, seg=2)
+            leg.location = (M(px + (j - 0.5) * 30), M((ya + yb) / 2), M(350))
+            leg.rotation_euler = (math.atan2(dy, -dz), 0, 0)
+    box('table_stretcher', TX0 + 380, TX1 - 380, TYC - 20, TYC + 20, 380, 420, BZ, bevel=3)
+    if ext:
+        xs = [TX0 + 300 + 600 * i for i in range(4)]
+    else:
+        xs = [TX0 + 350, TX0 + 1050]
+    chairs = [(x, 1935, math.pi / 2) for x in xs] + [(x, 3235, -math.pi / 2) for x in xs]
+    if ext:
+        chairs += [(TX0 - 290, TYC, 0.0), (TX1 + 290, TYC, math.pi)]
+    for i, (cx, cy, rot) in enumerate(chairs):
+        tub_chair(f'chair_{i}', cx, cy, rot, X['chair'], BZ, slim=True)
+    if not cut:
+        chandelier('chandelier', TX0 + 700, TYC, 2650, X)
+
+
+def curtains_k5(X):
+    """K5: шторы в нише CN-3 по контуру остекления — плотные «тауп» (блэкаут для проектора) собраны в углах,
+    тюль задёрнут; низ штор над подоконником (+1040), спинки П-дивана ниже."""
+    C, SH = X['curtain'], X['sheer']
+    z0 = 1040
+    curtain('sheer_B1', 'x', -2418, 140, 2990, X, z0=z0, amp=18, wl=90, m=SH)
+    curtain('drape_B1_a', 'x', -2385, 110, 520, X, z0=z0, amp=45, wl=150, m=C)
+    curtain('drape_B1_b', 'x', -2385, 2600, 3010, X, z0=z0, amp=45, wl=150, m=C)
+    curtain('sheer_B3', 'y', 70, -2380, -500, X, z0=z0, amp=18, wl=90, m=SH)
+    curtain('drape_B3', 'y', 120, -2380, -2010, X, z0=z0, amp=45, wl=150, m=C)
+    curtain('sheer_B2', 'y', 3043, -2380, -500, X, z0=z0, amp=18, wl=90, m=SH)
+    curtain('drape_B2', 'y', 2993, -2380, -2010, X, z0=z0, amp=45, wl=150, m=C)
+
+
 def sofa_k4(X):
     """K4: П-образный диван на балконе — спинка вдоль остекления B1, боковины вдоль B2/B3, открыт к проёму; пуф в центре."""
     collection('sofa')
@@ -1472,6 +1802,19 @@ LAYOUTS = {
             'V7': ((-2000, 1540, 1150), (600, 1520, 1650), 22),    # «Кино»: вид с дивана на экран в проёме
             'V6': ((770, 845, 11400), (770, 1745, 0), 48),         # 3D-план сверху (запуск с --cut)
         }),
+    'K5': dict(
+        sketch=None, open_top=3068, tv=False, frames=[(300, 1150), (1300, 2500), (2650, 3450)],
+        sconces=(1900, 3050), table=(850, 2585), pendant_z0=2650, chairs=[],
+        cams={
+            'V1': ((4300, 2750, 1600), (-1500, 1700, 950), 20),    # общий вид из прихожей: кухня, стол, балкон
+            'V2': ((3300, 900, 1550), (-300, 2900, 1000), 19),     # от угловой кухни: стол у проёма, балкон
+            'V3': ((2300, 3350, 1550), (3600, 250, 1150), 19),     # угловая кухня из-за стола
+            'V4': ((-1300, 900, 1250), (2600, 2800, 1000), 19),    # с балкона из «П» на кухню
+            'V5': ((900, 1250, 1450), (-2100, 1556, 600), 20),     # П-образный диван через проём
+            'V7': ((-2000, 1540, 1150), (600, 1520, 1650), 22),    # «Кино»: вид с дивана на экран в проёме
+            'V8': ((3350, 2600, 1450), (-2400, 2350, 1150), 22),   # вдоль стола к балкону (как референс 2)
+            'V6': ((770, 845, 11400), (770, 1745, 0), 48),         # 3D-план сверху (запуск с --cut)
+        }),
 }
 LAYOUT = 'K2'
 LAY = LAYOUTS[LAYOUT]
@@ -1520,7 +1863,7 @@ def glazing(prefix, axis, c0, c1, s_edges, inward, X, z0=1022, z1=2450, fw=62):
         bx(f'{prefix}_handle{k}', hs - 10, hs + 10, 1560, 1700, X['white'], hd0, hd1)
 
 
-def curtain(nm, axis, c, s0, s1, X, z0=20, z1=2595, amp=32, wl=120):
+def curtain(nm, axis, c, s0, s1, X, z0=20, z1=2595, amp=32, wl=120, m=None):
     """Лёгкая штора на треке: волна по ширине полотна."""
     bm = bmesh.new()
     n = max(8, int(abs(s1 - s0) / (wl / 8)))
@@ -1536,7 +1879,7 @@ def curtain(nm, axis, c, s0, s1, X, z0=20, z1=2595, amp=32, wl=120):
     me = bpy.data.meshes.new(nm)
     bm.to_mesh(me)
     bm.free()
-    o = link(nm, me, [X['sheer']], smooth=True)
+    o = link(nm, me, [m or X['sheer']], smooth=True)
     sd = o.modifiers.new('thick', 'SOLIDIFY')
     sd.thickness = 0.002
 
@@ -1576,7 +1919,7 @@ def door(nm, ax, c, sg, a0, a1, X, cut):
     bx(nm + '_sill', a0, a1, face - sg * 90, face, -10, 0, X['white'])
 
 
-def tub_chair(name, cx, cy, rot, fab, wood):
+def tub_chair(name, cx, cy, rot, fab, wood, slim=False):
     """Кресло-«корзина»: изогнутая спинка, мягкое сиденье, точёные ножки. Сиденье смотрит по +X, затем поворот rot."""
     parts = [box(name + '_seat', -225, 225, -215, 215, 400, 500, fab, bevel=40, seg=4, subsurf=1)]
     bm = bmesh.new()
@@ -1611,7 +1954,8 @@ def tub_chair(name, cx, cy, rot, fab, wood):
     sub.levels = sub.render_levels = 1
     parts.append(back)
     for i, (lx, ly) in enumerate([(-160, -150), (-160, 150), (160, -150), (160, 150)]):
-        parts.append(lathe(f'{name}_leg{i}', [(15, 0), (17, 60), (21, 330), (20, 400), (0, 401)], lx, ly, wood, seg=16))
+        prof = [(7, 0), (8, 200), (9.5, 400), (0, 401)] if slim else [(15, 0), (17, 60), (21, 330), (20, 400), (0, 401)]
+        parts.append(lathe(f'{name}_leg{i}', prof, lx * (1.08 if slim else 1), ly * (1.08 if slim else 1), wood, seg=16))
     c, s = math.cos(rot), math.sin(rot)
     for p in parts:
         x, y, z = p.location
@@ -1782,7 +2126,7 @@ def render(view, res, samples, out_dir, exposure=0.0, layout='K2'):
     return out
 
 
-EXPOSURE = {'V7': 0.3, 'V1': 0.35, 'V2': 0.3, 'V3': 0.45, 'V4': 0.45, 'V5': 0.0, 'V6': -0.2}
+EXPOSURE = {'V8': 0.3, 'V7': 0.3, 'V1': 0.35, 'V2': 0.3, 'V3': 0.45, 'V4': 0.45, 'V5': 0.0, 'V6': -0.2}
 
 
 def main():
@@ -1795,16 +2139,18 @@ def main():
     ap.add_argument('--cinema', action='store_true', help='K4: режим «Кино» — экран опущен, проектор работает')
     ap.add_argument('--table', default='compact', choices=('compact', 'extended'),
                     help='K4: раздвижной стол сложен (4 персоны) или разложен (10)')
-    ap.add_argument('--layout', default='K2', choices=sorted(LAYOUTS), help='эскиз заказчика: K2 или K3')
+    ap.add_argument('--layout', default='K2', choices=sorted(LAYOUTS), help='вариант: K2, K3 (эскизы), K4, K5 (по референсам)')
     ap.add_argument('--blend', default='', help='сохранить .blend')
     ap.add_argument('--threads', type=int, default=0)
     a = ap.parse_args(sys.argv[1:])
     res = tuple(int(v) for v in a.res.lower().split('x'))
     Path(a.out).mkdir(parents=True, exist_ok=True)
     t = time.time()
-    global LAYOUT, LAY, TABLE_STATE, TV_STATE, CORNER
+    global LAYOUT, LAY, TABLE_STATE, TV_STATE, CORNER, STYLE, FRONT_STYLE
     LAYOUT, LAY, TABLE_STATE, TV_STATE = a.layout, LAYOUTS[a.layout], a.table, ('balcony' if a.cinema else 'kitchen')
-    CORNER = LAYOUT == 'K4'
+    CORNER = LAYOUT in ('K4', 'K5')
+    if LAYOUT == 'K5':
+        STYLE, FRONT_STYLE = 'greige', 'flat'
     build(cut=a.cut)
     if a.threads:
         bpy.context.scene.render.threads_mode = 'FIXED'
@@ -1814,8 +2160,8 @@ def main():
         bpy.ops.wm.save_as_mainfile(filepath=str(Path(a.blend).resolve()))
         print('  .blend:', a.blend)
     for v in [v for v in a.views.split(',') if v]:
-        tag = a.layout + ('-ext' if a.layout == 'K4' and a.table == 'extended' else '') + \
-            ('-cinema' if a.layout == 'K4' and a.cinema else '')
+        tag = a.layout + ('-ext' if a.layout in ('K4', 'K5') and a.table == 'extended' else '') + \
+            ('-cinema' if a.layout in ('K4', 'K5') and a.cinema else '')
         render(v, res, a.samples, a.out, EXPOSURE.get(v, 0.0), tag)
 
 

@@ -2,13 +2,39 @@
 
 | Вариант | Что | Рендеры |
 |---|---|---|
-| **K4 (актуальный, D35–D41)** | стена W2 без изменений; угловая кухня (W3 + W10); на балконе П-образный диван и пуф; в кухне раздвижной овальный стол: сложен 1400 — 4 персоны, разложен 2400 — 10; ТВ нет — проектор на потолке балкона и моторизованный экран 80″ в коробе над порталом | `renders/kitchen-balcony-K4-V1…V6.png` (стол сложен, экран убран), `renders/kitchen-balcony-K4-ext-V1, V2, V6.png` (стол разложен), `renders/kitchen-balcony-K4-cinema-V7.png` (режим «Кино»), `kitchen-balcony-K4.blend` |
+| **K5 (актуальный, D42–D43)** | как K4, но проём в W2 расширен до торца балкона, стол сдвинут к проёму; стилистика по референсам заказчика: тёплый грейж, гладкие фасады с латунными профилями, рифлёный пояс, витрины, мрамор, полированный керамогранит, стеклянная люстра, шторы тауп и тюль на балконе | `renders/kitchen-balcony-K5-V1…V6, V8.png` (стол сложен), `renders/kitchen-balcony-K5-ext-V1, V2, V6.png` (разложен), `renders/kitchen-balcony-K5-cinema-V7.png`, `kitchen-balcony-K5.blend` |
+| K4 (D35–D41) | стена W2 без изменений; угловая кухня (W3 + W10); на балконе П-образный диван и пуф; в кухне раздвижной овальный стол: сложен 1400 — 4 персоны, разложен 2400 — 10; ТВ нет — проектор на потолке балкона и моторизованный экран 80″ в коробе над порталом | `renders/kitchen-balcony-K4-V1…V6.png` (стол сложен, экран убран), `renders/kitchen-balcony-K4-ext-V1, V2, V6.png` (стол разложен), `renders/kitchen-balcony-K4-cinema-V7.png` (режим «Кино»), `kitchen-balcony-K4.blend` |
 | K3 (D34) | угловой диван через расширенный проём, круглый стол в кухне — отменён (расширение проёма в несущей стене) | `renders/kitchen-balcony-K3-*.png` |
 | K2 (D33) | столовая на балконе, диван и ТВ в кухне | `renders/kitchen-balcony-V1…V6.png`, `kitchen-balcony.blend` |
 
-Запуск варианта: `--layout K2|K3|K4`, для K4 — `--table compact|extended` и `--cinema` (экран опущен, идёт картинка).
+Запуск варианта: `--layout K2|K3|K4|K5`, для K4/K5 — `--table compact|extended` и `--cinema` (экран опущен, идёт картинка).
 
-## Вариант K4 (актуальный)
+## Вариант K5 (актуальный)
+
+Планировка — как K4 (угловая кухня, П-диван, проектор и экран 80″, раздвижной стол), изменения:
+
+- **Проём O4 расширен до торца балкона** (y 590…3068, D42) — работы по несущей стене, нужен проект усиления.
+- **Стол сдвинут к балкону:** торец у проёма (x 150). Сложен 1400 — 4 кресла, разложен 2400 — 10, торцевое кресло
+  в проёме. Между столом и угловой кухней освободилось место, проход из прихожей к разложенному столу ≈1,0 м.
+- **Стилистика по референсам** (`01-input/refs/style-ref-kitchen-1.jpg`, `style-ref-dining-2.jpg`, D43): светлый тёплый
+  грейж на стенах и балконе; гладкие фасады — низ и пеналы тауп, навесные слоновая кость, латунные профили-ручки;
+  рифлёный пояс над навесными; две витрины с подсветкой на W10; мрамор на столешнице и фартуке; пол — полированный
+  керамогранит «мрамор» 1200×600; стол с мраморной столешницей на Х-опорах, бархатные кресла; люстра из литого стекла;
+  на балконе плотные шторы тауп (затемнение для проектора) и тюль.
+
+| Файл | Что показано |
+|---|---|
+| `renders/kitchen-balcony-K5-V8.png` | Вдоль стола к балкону: люстра, стол, П-диван, шторы (ракурс как на референсе 2) |
+| `renders/kitchen-balcony-K5-V1.png` | Общий вид из прихожей |
+| `renders/kitchen-balcony-K5-V2.png` | От угловой кухни: стол у проёма и балкон |
+| `renders/kitchen-balcony-K5-V3.png` | Угловая кухня: рифлёный пояс, витрины, мрамор |
+| `renders/kitchen-balcony-K5-V4.png` | С балкона в кухню |
+| `renders/kitchen-balcony-K5-V5.png` | П-образный диван, шторы и тюль |
+| `renders/kitchen-balcony-K5-V6.png` | 3D-план сверху, стол сложен |
+| `renders/kitchen-balcony-K5-ext-V1.png`, `-ext-V2.png`, `-ext-V6.png` | Стол разложен на 10 персон |
+| `renders/kitchen-balcony-K5-cinema-V7.png` | Режим «Кино» с дивана |
+
+## Вариант K4
 
 | Файл | Что показано |
 |---|---|
@@ -29,7 +55,7 @@
   Экран 80″ 16:9 в коробе-ламбрекене под потолком кухни над порталом O4; в режиме «Кино» опускается в проём
   экраном к дивану, до центральных мест ≈2,15 м. В обычном режиме экран убран в короб — кухню и проход он не занимает.
 
-Рабочие чертежи, электрика и смета пока соответствуют варианту D1 — обновить после утверждения K4.
+Рабочие чертежи, электрика и смета пока соответствуют варианту D1 — обновить после утверждения K5.
 
 Ниже — описание варианта K2.
 
@@ -77,6 +103,12 @@ python3.11 -m venv .venv && .venv/bin/pip install bpy shapely
 .venv/bin/python tools/viz_kitchen_balcony.py --views V1,V2,V3,V4,V5 --res 1600x900 --samples 160 \
     --blend 07-visualization/kitchen-balcony.blend
 .venv/bin/python tools/viz_kitchen_balcony.py --views V6 --cut --res 1600x900 --samples 128
+# K5 (K4 — то же с --layout K4, без V8)
+.venv/bin/python tools/viz_kitchen_balcony.py --layout K5 --views V1,V2,V3,V4,V5,V8 --res 1600x900 --samples 144 \
+    --blend 07-visualization/kitchen-balcony-K5.blend
+.venv/bin/python tools/viz_kitchen_balcony.py --layout K5 --table extended --views V1,V2 --res 1600x900 --samples 144
+.venv/bin/python tools/viz_kitchen_balcony.py --layout K5 --cinema --views V7 --res 1600x900 --samples 144
+.venv/bin/python tools/viz_kitchen_balcony.py --layout K5 [--table extended] --views V6 --cut --res 1600x900 --samples 128
 # K4
 .venv/bin/python tools/viz_kitchen_balcony.py --layout K4 --views V1,V2,V3,V4,V5 --res 1600x900 --samples 144 \
     --blend 07-visualization/kitchen-balcony-K4.blend
