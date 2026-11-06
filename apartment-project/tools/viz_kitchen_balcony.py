@@ -869,7 +869,7 @@ def build(cut=False):
     if LAY.get('tv', True):
         tv_zone(X, S, BR)
     if LAYOUT == 'K4':
-        tv_swivel(X, cut)
+        projector_cinema(X, cut)
     if not cut:
         for i, (a0, a1) in enumerate(LAY['frames']):
             frame_on_wall(f'mould_W8_{i}', ('y', 3580, -1), a0, a1, *LAY.get('frame_z', (760, 2380)), X['wall'])
@@ -1096,6 +1096,32 @@ TV_C = (1540, 1415)                   # центр по Y (ось П-диван�
 TV_X = 240                            # лицевая плоскость экрана в опущенном положении (смотрит в −X, на балкон)
 
 
+def mat_projection():
+    """Картинка проектора на матовом экране: «закат над морем», без бликов."""
+    if 'projection' in MATS:
+        return MATS['projection']
+    m = _newmat('projection')
+    N, L = m.node_tree.nodes, m.node_tree.links
+    N.remove(N['Principled BSDF'])
+    tc = N.new('ShaderNodeTexCoord')
+    sep = N.new('ShaderNodeSeparateXYZ')
+    L.new(tc.outputs['Generated'], sep.inputs['Vector'])
+    ramp = N.new('ShaderNodeValToRGB')
+    cr = ramp.color_ramp
+    cr.elements[0].position, cr.elements[0].color = 0.0, lin('#2E5466')
+    cr.elements[1].position, cr.elements[1].color = 1.0, lin('#6F93B8')
+    for pos, col in ((0.34, '#4C7C86'), (0.40, '#E2A267'), (0.48, '#F2C28C'), (0.70, '#C7A7A0')):
+        e = cr.elements.new(pos)
+        e.color = lin(col)
+    L.new(sep.outputs['Z'], ramp.inputs['Fac'])
+    em = N.new('ShaderNodeEmission')
+    em.inputs['Strength'].default_value = 1.6
+    L.new(ramp.outputs['Color'], em.inputs['Color'])
+    L.new(em.outputs['Emission'], N['Material Output'].inputs['Surface'])
+    MATS['projection'] = m
+    return m
+
+
 def mat_screen_on():
     """Включённый экран: мягкий «закатный» кадр (вертикальный градиент), светится."""
     if 'screen_on' in MATS:
@@ -1227,6 +1253,48 @@ def tv_swivel(X, cut):
     tp = box('tv_back_plate', -200, 200, -15, 15, -150, 150, BZ, bevel=3)
     tp.location = (M(back[0]), M(back[1]), M(zc))
     tp.rotation_euler = (0, 0, th)
+
+
+# Кинозона K4 (D41): проектор на потолке балкона над спинкой П-дивана, моторизованный экран 80″ 16:9
+# в коробе-ламбрекене под потолком кухни над порталом O4; в режиме «Кино» экран опускается в проём к дивану
+SCREEN_BOX = (0, 320, 520, 2520, 2530)   # x0, x1, y0, y1, низ короба
+SCREEN = dict(x=155, yc=1520, w=1771, img=(1254, 2250), bottom=1190)
+PROJ = (-2140, 1520, 2390)               # объектив: x, y, z (потолок балкона +2500)
+
+
+def projector_cinema(X, cut):
+    """Короб с экраном в кухне и проектор на потолке балкона. TV_STATE 'balcony' — экран опущен, идёт картинка."""
+    x0, x1, y0, y1, zb = SCREEN_BOX
+    on = TV_STATE == 'balcony'
+    if not cut:
+        box('screen_box', x0, x1, y0, y1, zb, 2650, X['ceil'])
+        sweep('screen_box_mould', [(x1, y0, zb), (x1, y1, zb), (x0, y1, zb), (x0, y0, zb)], (0, 0, 1),
+              [(0, 0), (0, -6), (6, -12), (14, -14), (20, -18), (24, -24)], X['ceil'])
+        box('screen_slot', SCREEN['x'] - 12, SCREEN['x'] + 12, SCREEN['yc'] - 920, SCREEN['yc'] + 920, zb - 2, zb,
+            X['rubber'] if on else X['trim_ring'])
+        # проектор: корпус на штанге под потолком балкона, объектив к экрану (+X)
+        px, py, pz = PROJ
+        cylinder('proj_rod', px - 140, py, pz + 60, 2500, 12, X['bronze'])
+        box('proj_plate', px - 200, px - 80, py - 60, py + 60, 2480, 2500, X['bronze'])
+        box('proj_body', px - 320, px, py - 190, py + 190, pz - 70, pz + 60, mat('proj_white', '#E9E7E2', 0.4), bevel=12,
+            seg=3)
+        lens = cylinder('proj_lens', 0, 0, 0, 30, 42, X['black_glass'], seg=32)
+        lens.rotation_euler = (0, math.pi / 2, 0)
+        lens.location = (M(px), M(py + 60), M(pz))
+        if on:
+            ln = mat_emit('proj_lens_glow', (1.0, 0.95, 0.9, 1), 25.0)
+            g = cylinder('proj_lens_glow', 0, 0, 0, 2, 30, ln, seg=32)
+            g.rotation_euler = (0, math.pi / 2, 0)
+            g.location = (M(px + 30), M(py + 60), M(pz))
+    if on:
+        sx, yc, w = SCREEN['x'], SCREEN['yc'], SCREEN['w']
+        i0, i1 = SCREEN['img']
+        black = mat('screen_black', '#141414', 0.8)
+        box('screen_drop', sx - 1, sx + 1, yc - w / 2 - 40, yc + w / 2 + 40, i1, zb, black)
+        box('screen_border', sx - 1, sx + 1, yc - w / 2 - 40, yc + w / 2 + 40, SCREEN['bottom'] + 20, i0, black)
+        box('screen_image', sx - 2, sx, yc - w / 2, yc + w / 2, i0, i1, mat_projection())
+        box('screen_bar', sx - 10, sx + 10, yc - w / 2 - 50, yc + w / 2 + 50, SCREEN['bottom'], SCREEN['bottom'] + 20,
+            X['steel'])
 
 
 def tv_lift(X, cut):
@@ -1401,7 +1469,7 @@ LAYOUTS = {
             'V3': ((2100, 3350, 1300), (3600, 250, 1050), 19),     # угловая кухня из-за стола
             'V4': ((-1300, 900, 1250), (2600, 2800, 950), 19),     # с балкона из «П» на кухню
             'V5': ((500, 1500, 1450), (-2100, 1556, 550), 20),     # П-образный диван через портал
-            'V7': ((-2050, 1556, 1150), (600, 1650, 1300), 22),    # «Кино»: вид с дивана на ТВ в проёме
+            'V7': ((-2000, 1540, 1150), (600, 1520, 1650), 22),    # «Кино»: вид с дивана на экран в проёме
             'V6': ((770, 845, 11400), (770, 1745, 0), 48),         # 3D-план сверху (запуск с --cut)
         }),
 }
@@ -1720,8 +1788,7 @@ def main():
     ap.add_argument('--samples', type=int, default=256)
     ap.add_argument('--out', default=str(OUT / 'renders'))
     ap.add_argument('--cut', action='store_true', help='сцена «кукольный домик» (для V6)')
-    ap.add_argument('--tv', default='kitchen', choices=('kitchen', 'balcony'),
-                    help='K4: ТВ на кронштейне — 1 в углу кухни или 2 в проёме перед диваном')
+    ap.add_argument('--cinema', action='store_true', help='K4: режим «Кино» — экран опущен, проектор работает')
     ap.add_argument('--table', default='compact', choices=('compact', 'extended'),
                     help='K4: раздвижной стол сложен (4 персоны) или разложен (10)')
     ap.add_argument('--layout', default='K2', choices=sorted(LAYOUTS), help='эскиз заказчика: K2 или K3')
@@ -1732,7 +1799,7 @@ def main():
     Path(a.out).mkdir(parents=True, exist_ok=True)
     t = time.time()
     global LAYOUT, LAY, TABLE_STATE, TV_STATE, CORNER
-    LAYOUT, LAY, TABLE_STATE, TV_STATE = a.layout, LAYOUTS[a.layout], a.table, a.tv
+    LAYOUT, LAY, TABLE_STATE, TV_STATE = a.layout, LAYOUTS[a.layout], a.table, ('balcony' if a.cinema else 'kitchen')
     CORNER = LAYOUT == 'K4'
     build(cut=a.cut)
     if a.threads:
@@ -1744,7 +1811,7 @@ def main():
         print('  .blend:', a.blend)
     for v in [v for v in a.views.split(',') if v]:
         tag = a.layout + ('-ext' if a.layout == 'K4' and a.table == 'extended' else '') + \
-            ('-tv' if a.layout == 'K4' and a.tv == 'balcony' else '')
+            ('-cinema' if a.layout == 'K4' and a.cinema else '')
         render(v, res, a.samples, a.out, EXPOSURE.get(v, 0.0), tag)
 
 
