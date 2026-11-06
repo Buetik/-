@@ -681,7 +681,8 @@ def build(cut=False):
     collection('floor')
     kitchen = Polygon([(0, 0), (4090, 0), (4090, 2011), (7541, 2011), (7541, 3121), (4820, 3121),
                        (4820, 5970), (3525, 5970), (3525, 3580), (0, 3580)])
-    portal = Polygon([(-420, 590), (0, 590), (0, 2450), (-420, 2450)])
+    OT = LAY['open_top']  # верх проёма O4 по Y (K3 — проём расширен до торца балкона)
+    portal = Polygon([(-420, 590), (0, 590), (0, OT), (-420, OT)])
     balcony = Polygon([(-2431, 45), (-420, 45), (-420, 3068), (-2431, 3068)])
     if cut:  # в «кукольном домике» — только кухня-гостиная и балкон
         kitchen = Polygon([(0, 0), (4090, 0), (4090, 3580), (0, 3580)])
@@ -689,13 +690,13 @@ def build(cut=False):
     _, n = herringbone('floor_herringbone', region, X['oak_floor'])
     print(f'  ёлочка: {n} досок')
     prism('subfloor', list(region.buffer(5).exterior.coords)[:-1], -10, -3, X['sub'])
-    box('profile_brass', -213, -207, 590, 2450, -1, 1.5, X['brass'])
+    box('profile_brass', -213, -207, 590, OT, -1, 1.5, X['brass'])
 
     # ---------------- стены (мм)
     collection('walls')
     walls = [
-        ('W2_a', -420, 0, 0, 590, 0, SLAB), ('W2_lintel', -420, 0, 590, 2450, 2450, SLAB),
-        ('W2_b', -420, 0, 2450, 3720, 0, SLAB), ('W3', -420, 6000, -160, 0, 0, SLAB),
+        ('W2_a', -420, 0, 0, 590, 0, SLAB), ('W2_lintel', -420, 0, 590, OT, 2450, SLAB),
+        ('W2_b', -420, 0, OT, 3720, 0, SLAB), ('W3', -420, 6000, -160, 0, 0, SLAB),
         ('W10', 4090, 4170, 0, 2011, 0, SLAB), ('W11_a', 4170, 4240, 1931, 2011, 0, SLAB),
         ('W11_top', 4240, 4960, 1931, 2011, 2180, SLAB), ('W11_b', 4960, 7541, 1931, 2011, 0, SLAB),
         ('W8', 0, 3530, 3580, 3720, 0, SLAB), ('W7_top', 3380, 3525, 3720, 4621, 2180, SLAB),
@@ -713,14 +714,15 @@ def build(cut=False):
             box(nm, x0, x1, y0, y1, z0, hz(z1), X['cut_wall'] if cut else X['wall'])
     # откосы портала O4 — C1 (D21), тонким слоем поверх кладки
     box('O4_reveal_l', -420, 0, 590, 592, 0, hz(2448), X['white'])
-    box('O4_reveal_r', -420, 0, 2448, 2450, 0, hz(2448), X['white'])
+    box('O4_reveal_r', -420, 0, OT - 2, OT, 0, hz(2448), X['white'])
     if not cut:
-        box('O4_reveal_top', -420, 0, 590, 2450, 2446, 2448, X['white'])
+        box('O4_reveal_top', -420, 0, 590, OT, 2446, 2448, X['white'])
     # балконная сторона W2 — тёмная олива (C6)
     box('W2_balc_1', -426, -420, 45, 590, 0, hz(H_B), X['olive'])
-    box('W2_balc_2', -426, -420, 2450, 3068, 0, hz(H_B), X['olive'])
+    if OT < 3068:
+        box('W2_balc_2', -426, -420, OT, 3068, 0, hz(H_B), X['olive'])
     if not cut:
-        box('W2_balc_3', -426, -420, 590, 2450, 2450, H_B, X['olive'])
+        box('W2_balc_3', -426, -420, 590, OT, 2450, H_B, X['olive'])
     if not cut:  # прихожая и коридор — фон для видов в сторону входа
         hall_and_doors(X)
 
@@ -747,7 +749,7 @@ def build(cut=False):
             cylinder(f'downlight_lens_{i}', x, y, H_K - 6, H_K - 4, 34, X['led'], seg=24)
     collection('trim')
     skirts = [  # обход против часовой стрелки — комната слева
-        [(3525, 3721, 0), (3525, 3580, 0), (0, 3580, 0), (0, 2450, 0)],
+        [(3525, 3721, 0), (3525, 3580, 0), (0, 3580, 0), (0, OT, 0)],
         [(3720, 5970, 0), (3525, 5970, 0), (3525, 4621, 0)],
         [(4820, 4930, 0), (4820, 5970, 0), (4600, 5970, 0)],
         [(4820, 3721, 0), (4820, 4150, 0)],
@@ -755,11 +757,13 @@ def build(cut=False):
         [(4960, 2011, 0), (7541, 2011, 0)],
     ]
     if cut:
-        skirts = [[(4090, 640, 0), (4090, 3580, 0), (0, 3580, 0), (0, 2450, 0)]]
+        skirts = [[(4090, 640, 0), (4090, 3580, 0), (0, 3580, 0), (0, OT, 0)]]
     for i, path in enumerate(skirts):
         sweep(f'skirting_{i}', path, (0, 0, 1), SKIRT, X['wall'])
-    sweep('skirting_balcony', [(-420, 2450, 0), (-420, 3068, 0), (-2431, 3068, 0), (-2431, 45, 0), (-420, 45, 0),
-                               (-420, 590, 0)], (0, 0, 1), SKIRT_B, X['olive'])
+    bpath = [(-420, OT, 0), (-420, 3068, 0), (-2431, 3068, 0), (-2431, 45, 0), (-420, 45, 0), (-420, 590, 0)]
+    if OT >= 3068:
+        bpath = bpath[1:]
+    sweep('skirting_balcony', bpath, (0, 0, 1), SKIRT_B, X['olive'])
 
     # ---------------- кухня вдоль W3 (эскиз K2)
     collection('kitchen')
@@ -847,20 +851,21 @@ def build(cut=False):
 
     # ---------------- ТВ-зона на W8 (y=3580): подвесная консоль, ТВ, молдинги, бра
     collection('tv_wall')
-    CY0, CY1 = 3320, 3580
+    CY0, CY1 = LAY['console_y0'], 3580
     box('console_body', 30, 3500, CY0 + 19, CY1, 250, 650, S, bevel=2)
     for i, (x0, x1) in enumerate([(30, 396), (396, 762), (762, 1446), (1446, 2131), (2131, 2815), (2815, 3500)]):
         hx = x1 - 45 if i % 2 == 0 else x0 + 45
         front(f'console_f{i}', x0, x1, 252, 648, CY0 + 19, -1, S, handle=('knob', hx, 450), hm=BR)
-    tvw, tvh, tvc = 1280, 720, 1150
-    box('tv_body', 1700 - tvw / 2, 1700 + tvw / 2, 3530, 3555, tvc - tvh / 2, tvc + tvh / 2, X['tv_body'], bevel=3)
-    box('tv_screen', 1700 - tvw / 2 + 6, 1700 + tvw / 2 - 6, 3528, 3530, tvc - tvh / 2 + 6, tvc + tvh / 2 - 6,
+    tvw, tvh, tvc, TVX = LAY['tv_w'], LAY['tv_w'] * 9 / 16, 1150, LAY['tv_x']
+    box('tv_body', TVX - tvw / 2, TVX + tvw / 2, 3530, 3555, tvc - tvh / 2, tvc + tvh / 2, X['tv_body'], bevel=3)
+    box('tv_screen', TVX - tvw / 2 + 6, TVX + tvw / 2 - 6, 3528, 3530, tvc - tvh / 2 + 6, tvc + tvh / 2 - 6,
         X['tv'])
     if not cut:
-        for i, (a0, a1) in enumerate([(200, 790), (940, 2460), (2610, 3200)]):
+        for i, (a0, a1) in enumerate(LAY['frames']):
             frame_on_wall(f'mould_W8_{i}', ('y', 3580, -1), a0, a1, 760, 2380, X['wall'])
-        frame_on_wall('mould_W2', ('x', 0, +1), 2700, 3330, 760, 2380, X['wall'])
-        for i, sx in enumerate((495, 2905)):
+        if OT < 2600:
+            frame_on_wall('mould_W2', ('x', 0, +1), 2700, 3330, 760, 2380, X['wall'])
+        for i, sx in enumerate(LAY['sconces']):
             pl = cylinder(f'sconce_plate_{i}', 0, 0, 0, 20, 45, BR)
             pl.rotation_euler = (math.pi / 2, 0, 0)
             pl.location = (M(sx), M(3580), M(1600))
@@ -870,43 +875,11 @@ def build(cut=False):
             sh.location.z = M(1580)
             sh.visible_shadow = False
 
-    # ---------------- диван 3000 (эскиз: x 205..3195, y 1607..2611), сиденьем к ТВ
-    collection('sofa')
-    F = X['sofa']
-    SX0, SX1, SY0, SY1 = 205, 3195, 1607, 2611
-    box('sofa_base', SX0 + 10, SX1 - 10, SY0 + 10, SY1 - 10, 110, 400, F, bevel=25, seg=3)
-    for i, lx in enumerate((SX0 + 60, SX1 - 60, (SX0 + SX1) / 2)):
-        for j, ly in enumerate((SY0 + 60, SY1 - 60)):
-            box(f'sofa_leg_{i}{j}', lx - 22, lx + 22, ly - 22, ly + 22, 0, 110, X['wood_dark'], bevel=4)
-    box('sofa_arm_l', SX0, SX0 + 280, SY0, SY1, 110, 640, F, bevel=60, seg=4)
-    box('sofa_arm_r', SX1 - 280, SX1, SY0, SY1, 110, 640, F, bevel=60, seg=4)
-    box('sofa_back', SX0 + 200, SX1 - 200, SY0, SY0 + 230, 300, 780, F, bevel=50, seg=4)
-    cw = (SX1 - SX0 - 560) / 3
-    for i in range(3):
-        x0 = SX0 + 280 + i * cw
-        box(f'sofa_seat_{i}', x0 + 4, x0 + cw - 4, SY0 + 230, SY1 - 25, 400, 590, F, bevel=45, seg=4, subsurf=1)
-        bc = box(f'sofa_backcush_{i}', x0 + 6, x0 + cw - 6, SY0 + 200, SY0 + 420, 570, 960, F, bevel=60, seg=4,
-                 subsurf=1)
-        bc.rotation_euler = (math.radians(9), 0, 0)
-    for i, (px, mt, rz) in enumerate([(SX0 + 440, 'pillow_a', 10), (SX0 + 780, 'pillow_b', -5),
-                                      (SX1 - 440, 'pillow_a', -10)]):
-        p = box(f'pillow_{i}', -220, 220, -75, 75, -220, 220, X[mt], bevel=70, seg=4, subsurf=2)
-        p.rotation_euler = (math.radians(16), 0, math.radians(rz))
-        p.location = (M(px), M(SY0 + 500), M(800))
-
-    # ---------------- раздвижная стеклянная дверь в портале O4: 3 полотна собраны у простенка (эскиз)
-    collection('glass_door')
-    BZ = X['bronze']
-    box('door_track', 0, 120, 560, 2540, 2452, 2490, BZ)
-    for i, (x0, y0, y1) in enumerate([(4, 1828, 2508), (40, 1787, 2421), (76, 1751, 2369)]):
-        t = 30
-        fw = 24
-        box(f'leaf{i}_l', x0, x0 + t, y0, y0 + fw, 10, 2440, BZ)
-        box(f'leaf{i}_r', x0, x0 + t, y1 - fw, y1, 10, 2440, BZ)
-        box(f'leaf{i}_b', x0 + 1, x0 + t - 1, y0 + fw, y1 - fw, 10, 60, BZ)
-        box(f'leaf{i}_t', x0 + 1, x0 + t - 1, y0 + fw, y1 - fw, 2390, 2440, BZ)
-        box(f'leaf{i}_glass', x0 + 12, x0 + 18, y0 + fw, y1 - fw, 60, 2390, X['glass'])
-    box('leaf_handle', 106, 128, 1801, 1813, 950, 1350, BR)
+    if LAYOUT == 'K2':
+        sofa_k2(X)
+        glass_door_k2(X)
+    else:
+        sofa_k3(X)
 
     # ---------------- балкон: парапеты, остекление, шторы
     collection('balcony')
@@ -924,34 +897,16 @@ def build(cut=False):
         glazing('B1', 'x', -2531, -2461, [-55, 751, 1556, 2362, 3168], +1, X)
         glazing('B2', 'y', 3098, 3168, [-2531, -1835, -1128, -420], -1, X)
         glazing('B3', 'y', -55, 15, [-2531, -1835, -1128, -420], +1, X)
-        curtain('curtain_B1_a', 'x', -2370, 120, 560, X)
-        curtain('curtain_B1_b', 'x', -2370, 2560, 3010, X)
-        curtain('curtain_B3', 'y', 110, -2380, -1990, X)
-        curtain('curtain_B2', 'y', 3005, -2380, -1990, X)
+        if LAYOUT == 'K2':
+            curtain('curtain_B1_a', 'x', -2370, 120, 560, X)
+            curtain('curtain_B1_b', 'x', -2370, 2560, 3010, X)
+            curtain('curtain_B3', 'y', 110, -2380, -1990, X)
+            curtain('curtain_B2', 'y', 3005, -2380, -1990, X)
 
-    # ---------------- столовая на балконе: стол Ø1000 + 4 кресла (эскиз)
+    # ---------------- столовая: K2 — на балконе, K3 — в кухне
     collection('dining')
-    TX, TY = -1270, 1519
-    lathe('table_top', [(0, 728), (497, 728), (500, 733), (500, 755), (496, 760), (0, 760)], TX, TY, X['oak'], seg=96)
-    lathe('table_pedestal', [(250, 0), (250, 18), (225, 30), (150, 45), (95, 70), (78, 120), (70, 300), (64, 520),
-                             (72, 600), (86, 640), (120, 690), (160, 728)], TX, TY, X['oak_v'], seg=64)
-    for i in range(16):
-        a = 2 * math.pi * i / 16
-        fl = box(f'table_flute_{i}', -5, 5, -4, 4, 150, 560, X['oak_v'], bevel=3)
-        fl.rotation_euler = (0, 0, a)
-        fl.location = (M(TX) + 0.069 * math.cos(a), M(TY) + 0.069 * math.sin(a), fl.location.z)
-    chairs = [(-2015, TY, 0.0), (-795, TY, math.pi), (TX, 2280, -math.pi / 2), (TX, 770, math.pi / 2)]
-    for i, (cx, cy, rot) in enumerate(chairs):
-        tub_chair(f'chair_{i}', cx, cy, rot, X['chair'], X['oak_v'])
-    if not cut:
-        cylinder('pendant_canopy', TX, TY, H_B - 20, H_B, 60, BR)
-        cylinder('pendant_rod', TX, TY, 1830, H_B - 20, 4, BR)
-        lathe('pendant_cap', [(0, 1790), (50, 1795), (60, 1815), (30, 1830), (0, 1832)], TX, TY, BR)
-        prof = [(160 * math.cos(math.radians(a)), 1650 + 160 * math.sin(math.radians(a))) for a in range(-90, 76, 5)]
-        prof[0] = (0.0, 1490.0)
-        prof += [(48, 1805), (0, 1806)]
-        g = lathe('pendant_globe', prof, TX, TY, X['opal'], seg=64)
-        g.visible_shadow = False
+    TX, TY = LAY['table']
+    dining(X, TX, TY, LAY['chairs'], cut, LAY['pendant_z0'])
 
     # ---------------- снаружи: перекрытие балкона, фасад, земля, деревья
     collection('exterior')
@@ -977,28 +932,155 @@ def build(cut=False):
     if not cut:
         for i, (x, y) in enumerate(SPOTS):
             spot(f'spot_{i}', x, y, H_K - 8, 22.0, warm, 75)
-        point('sconce_l0', 495, 3450, 1640, 7.0, warm, 25)
-        point('sconce_l1', 2905, 3450, 1640, 7.0, warm, 25)
+        for i, sx in enumerate(LAY['sconces']):
+            point(f'sconce_l{i}', sx, 3450, 1640, 7.0, warm, 25)
         point('pendant_light', TX, TY, 1650, 45.0, warm, 90)
         area('led_under', 2050, 50, 1540, 2780, 20, 14.0, warm)
     sun_and_sky(cut)
 
     # ---------------- камеры: (позиция, цель, фокус мм)
-    for nm, (pos, tgt, lens) in CAMS.items():
+    for nm, (pos, tgt, lens) in LAY['cams'].items():
         camera('CAM_' + nm, pos, tgt, lens, level=(nm != 'V6'))
     render_settings()
 
 
+def sofa_k2(X):
+    """K2: диван 3000 в кухне (x 205..3195, y 1607..2611), сиденьем к ТВ."""
+    collection('sofa')
+    F = X['sofa']
+    SX0, SX1, SY0, SY1 = 205, 3195, 1607, 2611
+    box('sofa_base', SX0 + 10, SX1 - 10, SY0 + 10, SY1 - 10, 110, 400, F, bevel=25, seg=3)
+    for i, lx in enumerate((SX0 + 60, SX1 - 60, (SX0 + SX1) / 2)):
+        for j, ly in enumerate((SY0 + 60, SY1 - 60)):
+            box(f'sofa_leg_{i}{j}', lx - 22, lx + 22, ly - 22, ly + 22, 0, 110, X['wood_dark'], bevel=4)
+    box('sofa_arm_l', SX0, SX0 + 280, SY0, SY1, 110, 640, F, bevel=60, seg=4)
+    box('sofa_arm_r', SX1 - 280, SX1, SY0, SY1, 110, 640, F, bevel=60, seg=4)
+    box('sofa_back', SX0 + 200, SX1 - 200, SY0, SY0 + 230, 300, 780, F, bevel=50, seg=4)
+    cw = (SX1 - SX0 - 560) / 3
+    for i in range(3):
+        x0 = SX0 + 280 + i * cw
+        box(f'sofa_seat_{i}', x0 + 4, x0 + cw - 4, SY0 + 230, SY1 - 25, 400, 590, F, bevel=45, seg=4, subsurf=1)
+        bc = box(f'sofa_backcush_{i}', x0 + 6, x0 + cw - 6, SY0 + 200, SY0 + 420, 570, 960, F, bevel=60, seg=4,
+                 subsurf=1)
+        bc.rotation_euler = (math.radians(9), 0, 0)
+    for i, (px, mt, rz) in enumerate([(SX0 + 440, 'pillow_a', 10), (SX0 + 780, 'pillow_b', -5),
+                                      (SX1 - 440, 'pillow_a', -10)]):
+        p = box(f'pillow_{i}', -220, 220, -75, 75, -220, 220, X[mt], bevel=70, seg=4, subsurf=2)
+        p.rotation_euler = (math.radians(16), 0, math.radians(rz))
+        p.location = (M(px), M(SY0 + 500), M(800))
+
+
+def glass_door_k2(X):
+    """K2: раздвижная стеклянная дверь в портале O4, 3 полотна собраны у простенка."""
+    BR = X['brass']
+    collection('glass_door')
+    BZ = X['bronze']
+    box('door_track', 0, 120, 560, 2540, 2452, 2490, BZ)
+    for i, (x0, y0, y1) in enumerate([(4, 1828, 2508), (40, 1787, 2421), (76, 1751, 2369)]):
+        t = 30
+        fw = 24
+        box(f'leaf{i}_l', x0, x0 + t, y0, y0 + fw, 10, 2440, BZ)
+        box(f'leaf{i}_r', x0, x0 + t, y1 - fw, y1, 10, 2440, BZ)
+        box(f'leaf{i}_b', x0 + 1, x0 + t - 1, y0 + fw, y1 - fw, 10, 60, BZ)
+        box(f'leaf{i}_t', x0 + 1, x0 + t - 1, y0 + fw, y1 - fw, 2390, 2440, BZ)
+        box(f'leaf{i}_glass', x0 + 12, x0 + 18, y0 + fw, y1 - fw, 60, 2390, X['glass'])
+    box('leaf_handle', 106, 128, 1801, 1813, 950, 1350, BR)
+
+
+def dining(X, TX, TY, chairs, cut, ceil):
+    """Круглый стол Ø1000 на тумбе, 4 кресла, подвес-шар над столом."""
+    BR = X['brass']
+    lathe('table_top', [(0, 728), (497, 728), (500, 733), (500, 755), (496, 760), (0, 760)], TX, TY, X['oak'], seg=96)
+    lathe('table_pedestal', [(250, 0), (250, 18), (225, 30), (150, 45), (95, 70), (78, 120), (70, 300), (64, 520),
+                             (72, 600), (86, 640), (120, 690), (160, 728)], TX, TY, X['oak_v'], seg=64)
+    for i in range(16):
+        a = 2 * math.pi * i / 16
+        fl = box(f'table_flute_{i}', -5, 5, -4, 4, 150, 560, X['oak_v'], bevel=3)
+        fl.rotation_euler = (0, 0, a)
+        fl.location = (M(TX) + 0.069 * math.cos(a), M(TY) + 0.069 * math.sin(a), fl.location.z)
+    for i, (cx, cy, rot) in enumerate(chairs):
+        tub_chair(f'chair_{i}', cx, cy, rot, X['chair'], X['oak_v'])
+    if not cut:
+        cylinder('pendant_canopy', TX, TY, ceil - 20, ceil, 60, BR)
+        cylinder('pendant_rod', TX, TY, 1830, ceil - 20, 4, BR)
+        lathe('pendant_cap', [(0, 1790), (50, 1795), (60, 1815), (30, 1830), (0, 1832)], TX, TY, BR)
+        prof = [(160 * math.cos(math.radians(a)), 1650 + 160 * math.sin(math.radians(a))) for a in range(-90, 76, 5)]
+        prof[0] = (0.0, 1490.0)
+        prof += [(48, 1805), (0, 1806)]
+        g = lathe('pendant_globe', prof, TX, TY, X['opal'], seg=64)
+        g.visible_shadow = False
+
+
+
+def sofa_k3(X):
+    """K3: угловой диван на балконе — длинная часть вдоль B1, короткая вдоль B2 через проём в кухню (оттоманка)."""
+    collection('sofa')
+    F, W = X['sofa'], X['wood_dark']
+    XL0, XL1 = -2390, -1398        # длинная часть: глубина
+    YL0, YL1 = 78, 3055            # длина вдоль B1
+    YT0 = 2063                     # короткая часть: y 2063..3055
+    XT1 = 587                      # конец оттоманки в кухне
+    box('sofa_base_l', XL0 + 10, XL1 - 10, YL0 + 10, YL1 - 10, 110, 400, F, bevel=25, seg=3)
+    box('sofa_base_t', XL1 - 10, XT1 - 10, YT0 + 10, YL1 - 10, 110, 400, F, bevel=25, seg=3)
+    for i, (lx, ly) in enumerate([(XL0 + 60, YL0 + 60), (XL1 - 60, YL0 + 60), (XL0 + 60, YL1 - 60),
+                                  (XT1 - 60, YT0 + 60), (XT1 - 60, YL1 - 60), (XL1 - 60, YT0 + 60)]):
+        box(f'sofa_leg_{i}', lx - 22, lx + 22, ly - 22, ly + 22, 0, 110, W, bevel=4)
+    box('sofa_back_l', XL0, XL0 + 230, YL0, YL1, 300, 780, F, bevel=50, seg=4)
+    box('sofa_back_t', XL0 + 230, -406, YL1 - 230, YL1, 300, 780, F, bevel=50, seg=4)
+    box('sofa_arm', XL0, XL1, YL0, YL0 + 280, 110, 640, F, bevel=60, seg=4)
+    # сиденья
+    seats = [(XL0 + 230, XL1, YL0 + 280, 1180), (XL0 + 230, XL1, 1180, 2063), (XL0 + 230, XL1, 2063, YL1 - 230),
+             (XL1, -406, YT0, YL1 - 230), (-406, XT1, YT0, YL1)]
+    for i, (x0, x1, y0, y1) in enumerate(seats):
+        box(f'sofa_seat_{i}', x0 + 4, x1 - 4, y0 + 4, y1 - 4, 400, 590, F, bevel=45, seg=4, subsurf=1)
+    for i, (y0, y1) in enumerate([(YL0 + 280, 1180), (1180, 2063), (2063, YL1 - 230)]):
+        bc = box(f'sofa_back_cush_l{i}', XL0 + 200, XL0 + 420, y0 + 6, y1 - 6, 570, 960, F, bevel=60, seg=4, subsurf=1)
+        bc.rotation_euler = (0, math.radians(-9), 0)
+    for i, (x0, x1) in enumerate([(XL0 + 420, XL1), (XL1, -406)]):
+        bc = box(f'sofa_back_cush_t{i}', x0 + 6, x1 - 6, YL1 - 420, YL1 - 200, 570, 960, F, bevel=60, seg=4, subsurf=1)
+        bc.rotation_euler = (math.radians(-9), 0, 0)
+    for i, (px, py, mt, rx, ry, rz) in enumerate([(XL0 + 470, 600, 'pillow_a', 0, -16, 90),
+                                                  (XL0 + 480, 2600, 'pillow_b', 0, -16, 80),
+                                                  (-1700, YL1 - 470, 'pillow_a', 16, 0, 5)]):
+        p = box(f'pillow_{i}', -220, 220, -75, 75, -220, 220, X[mt], bevel=70, seg=4, subsurf=2)
+        p.rotation_euler = (math.radians(rx), math.radians(ry), math.radians(rz))
+        p.location = (M(px), M(py), M(800))
+
+
+LAYOUTS = {
+    'K2': dict(
+        sketch='kitchen-balcony-sketch-K2.png', open_top=2450, console_y0=3320, tv_w=1280, tv_x=1700,
+        frames=[(200, 790), (940, 2460), (2610, 3200)], sconces=(495, 2905),
+        table=(-1270, 1519), pendant_z0=2500,
+        chairs=[(-2015, 1519, 0.0), (-795, 1519, math.pi), (-1270, 2280, -math.pi / 2), (-1270, 770, math.pi / 2)],
+        cams={
+            'V1': ((4300, 2750, 1600), (-1200, 1250, 1100), 20),   # общий вид из прихожей на балкон
+            'V2': ((2250, 2350, 1500), (-1500, 1450, 950), 22),    # столовая на балконе через портал
+            'V3': ((2650, 3240, 1600), (1700, 0, 1150), 19),       # кухонный фронт со стороны ТВ
+            'V4': ((3650, 1050, 1500), (1200, 3580, 1300), 19),    # ТВ-стена и диван
+            'V5': ((-2250, 2950, 1450), (-800, 300, 1050), 18),    # балкон: стол и вид в кухню
+            'V6': ((770, 845, 11400), (770, 1745, 0), 48),         # 3D-план сверху (запуск с --cut)
+        }),
+    'K3': dict(
+        sketch='kitchen-balcony-sketch-K3.png', open_top=3068, console_y0=3190, tv_w=1100, tv_x=2076,
+        frames=[(250, 1200), (1376, 2776), (2950, 3400)], sconces=(725, 3175),
+        table=(2054, 2019), pendant_z0=2650,
+        chairs=[(1277, 2019, 0.0), (2787, 2019, math.pi), (2054, 2667, -math.pi / 2), (2054, 1372, math.pi / 2)],
+        cams={
+            'V1': ((4300, 2750, 1600), (-1500, 2000, 1000), 20),   # общий вид из прихожей: стол и диван на балконе
+            'V2': ((3300, 700, 1550), (-1500, 2600, 900), 20),     # от кухни: столовая и угловой диван
+            'V3': ((3250, 3120, 1350), (1500, 0, 1000), 19),       # кухонный фронт со стороны ТВ
+            'V4': ((-1450, 1000, 1350), (2600, 2900, 1100), 19),    # с дивана на балконе в кухню и на ТВ
+            'V5': ((-600, 600, 1450), (-2100, 2700, 650), 18),     # балкон-гостиная: угловой диван
+            'V6': ((770, 845, 11400), (770, 1745, 0), 48),         # 3D-план сверху (запуск с --cut)
+        }),
+}
+LAYOUT = 'K2'
+LAY = LAYOUTS[LAYOUT]
+
+
 SPOTS = [(800, 800), (1600, 800), (2400, 800), (3200, 800), (700, 3150), (1700, 3150), (2700, 3150),
          (4400, 2700), (6000, 2700), (4170, 4400), (4170, 5500)]
-CAMS = {
-    'V1': ((4300, 2750, 1600), (-1200, 1250, 1100), 20),   # общий вид из прихожей на балкон
-    'V2': ((2250, 2350, 1500), (-1500, 1450, 950), 22),    # столовая на балконе через портал
-    'V3': ((2650, 3240, 1600), (1700, 0, 1150), 19),       # кухонный фронт со стороны ТВ
-    'V4': ((3650, 1050, 1500), (1200, 3580, 1300), 19),    # ТВ-стена и диван
-    'V5': ((-2250, 2950, 1450), (-800, 300, 1050), 18),    # балкон: стол и вид в кухню
-    'V6': ((770, 845, 11400), (770, 1745, 0), 48),         # 3D-план сверху, как на эскизе (запуск с --cut)
-}
 
 
 def hall_and_doors(X):
@@ -1283,14 +1365,14 @@ def render_settings():
     sc.render.image_settings.color_depth = '8'
 
 
-def render(view, res, samples, out_dir, exposure=0.0):
+def render(view, res, samples, out_dir, exposure=0.0, layout='K2'):
     sc = bpy.context.scene
     sc.camera = bpy.data.objects['CAM_' + view]
     sc.render.resolution_x, sc.render.resolution_y = res
     sc.render.resolution_percentage = 100
     sc.cycles.samples = samples
     sc.view_settings.exposure = exposure
-    out = Path(out_dir) / f'kitchen-balcony-{view}.png'
+    out = Path(out_dir) / (f'kitchen-balcony-{view}.png' if layout == 'K2' else f'kitchen-balcony-{layout}-{view}.png')
     sc.render.filepath = str(out)
     t = time.time()
     bpy.ops.render.render(write_still=True)
@@ -1308,12 +1390,15 @@ def main():
     ap.add_argument('--samples', type=int, default=256)
     ap.add_argument('--out', default=str(OUT / 'renders'))
     ap.add_argument('--cut', action='store_true', help='сцена «кукольный домик» (для V6)')
+    ap.add_argument('--layout', default='K2', choices=sorted(LAYOUTS), help='эскиз заказчика: K2 или K3')
     ap.add_argument('--blend', default='', help='сохранить .blend')
     ap.add_argument('--threads', type=int, default=0)
     a = ap.parse_args(sys.argv[1:])
     res = tuple(int(v) for v in a.res.lower().split('x'))
     Path(a.out).mkdir(parents=True, exist_ok=True)
     t = time.time()
+    global LAYOUT, LAY
+    LAYOUT, LAY = a.layout, LAYOUTS[a.layout]
     build(cut=a.cut)
     if a.threads:
         bpy.context.scene.render.threads_mode = 'FIXED'
@@ -1323,7 +1408,7 @@ def main():
         bpy.ops.wm.save_as_mainfile(filepath=str(Path(a.blend).resolve()))
         print('  .blend:', a.blend)
     for v in [v for v in a.views.split(',') if v]:
-        render(v, res, a.samples, a.out, EXPOSURE.get(v, 0.0))
+        render(v, res, a.samples, a.out, EXPOSURE.get(v, 0.0), a.layout)
 
 
 if __name__ == '__main__':
