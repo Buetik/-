@@ -1070,6 +1070,7 @@ def tv_zone(X, S, BR):
 
 
 K4_PENDANTS = (1300, 1900, 2500)
+TABLE_STATE = 'compact'
 
 
 def globe_pendant(name, x, y, ceil, r, zc, X):
@@ -1087,16 +1088,25 @@ def globe_pendant(name, x, y, ceil, r, zc, X):
 
 
 def dining_long(X, cut):
-    """K4: стол 2400×1000 на 10 персон: мягкая банкетка вдоль W8 (4 места), 4 кресла со стороны кухни и 2 в торцах."""
+    """K4: раздвижной стол 1000 в ширину: сложен 1400 — на 4 персоны, разложен 2400 (две вставки по 500) — на 10.
+    Мягкая банкетка вдоль W8; кресла со стороны кухни и в торцах."""
     BR, S, F = X['brass'], X['sage'], X['sofa']
-    TX0, TX1, TY0, TY1 = 700, 3100, 2080, 3080
-    # стол: дубовая столешница 40, царга, точёные ножки
-    box('table_top', TX0, TX1, TY0, TY1, 720, 760, X['oak'], bevel=4, seg=3)
+    ext = TABLE_STATE == 'extended'
+    TXC, TY0, TY1 = 1900, 2080, 3080
+    L_ = 2400 if ext else 1400
+    TX0, TX1 = TXC - L_ / 2, TXC + L_ / 2
+    # столешница: две половины по 700 и (в разложенном виде) две вставки по 500 — с тонкими стыками
+    cuts = [TX0, TX0 + 700, TX0 + 1200, TX0 + 1700, TX1] if ext else [TX0, TXC, TX1]
+    for i in range(len(cuts) - 1):
+        box(f'table_top_{i}', cuts[i] + (1 if i else 0), cuts[i + 1] - (1 if i < len(cuts) - 2 else 0), TY0, TY1,
+            720, 760, X['oak'], bevel=3, seg=2)
     for nm, a in (('apron_s', (TX0 + 90, TX1 - 90, TY0 + 90, TY0 + 112)), ('apron_n', (TX0 + 90, TX1 - 90, TY1 - 112, TY1 - 90)),
                   ('apron_w', (TX0 + 90, TX0 + 112, TY0 + 90, TY1 - 90)), ('apron_e', (TX1 - 112, TX1 - 90, TY0 + 90, TY1 - 90))):
         box('table_' + nm, *a, 620, 720, X['oak'], bevel=2)
-    for i, (lx, ly) in enumerate([(TX0 + 100, TY0 + 100), (TX1 - 100, TY0 + 100), (TX0 + 100, TY1 - 100),
-                                  (TX1 - 100, TY1 - 100)]):
+    legs = [(TX0 + 100, TY0 + 100), (TX1 - 100, TY0 + 100), (TX0 + 100, TY1 - 100), (TX1 - 100, TY1 - 100)]
+    if ext:  # опорные ножки под вставками
+        legs += [(TXC, TY0 + 100), (TXC, TY1 - 100)]
+    for i, (lx, ly) in enumerate(legs):
         lathe(f'table_leg_{i}', [(26, 0), (30, 40), (24, 70), (32, 110), (38, 300), (34, 520), (40, 560), (30, 580),
                                  (40, 600), (40, 720)], lx, ly, X['oak_v'], seg=24)
     # банкетка вдоль W8: корпус «шалфей» с филёнками, мягкое сиденье и спинка
@@ -1118,8 +1128,11 @@ def dining_long(X, cut):
         p = box(f'bench_pillow_{i}', -200, 200, -70, 70, -200, 200, X[mt], bevel=65, seg=4, subsurf=2)
         p.rotation_euler = (math.radians(-14), 0, math.radians(rz))
         p.location = (M(px), M(3330), M(700))
-    # кресла: 4 со стороны кухни, 2 в торцах
-    chairs = [(x, 1850, math.pi / 2) for x in (1000, 1600, 2200, 2800)] + [(400, 2580, 0.0), (3400, 2580, math.pi)]
+    # кресла: разложен — 4 со стороны кухни и 2 в торцах (+4 на банкетке = 10); сложен — 2 (+2 на банкетке = 4)
+    if ext:
+        chairs = [(x, 1850, math.pi / 2) for x in (1000, 1600, 2200, 2800)] + [(400, 2580, 0.0), (3400, 2580, math.pi)]
+    else:
+        chairs = [(x, 1850, math.pi / 2) for x in (1550, 2250)]
     for i, (cx, cy, rot) in enumerate(chairs):
         tub_chair(f'chair_{i}', cx, cy, rot, X['chair'], X['oak_v'])
     if not cut:
@@ -1523,6 +1536,8 @@ def main():
     ap.add_argument('--samples', type=int, default=256)
     ap.add_argument('--out', default=str(OUT / 'renders'))
     ap.add_argument('--cut', action='store_true', help='сцена «кукольный домик» (для V6)')
+    ap.add_argument('--table', default='compact', choices=('compact', 'extended'),
+                    help='K4: раздвижной стол сложен (4 персоны) или разложен (10)')
     ap.add_argument('--layout', default='K2', choices=sorted(LAYOUTS), help='эскиз заказчика: K2 или K3')
     ap.add_argument('--blend', default='', help='сохранить .blend')
     ap.add_argument('--threads', type=int, default=0)
@@ -1530,8 +1545,8 @@ def main():
     res = tuple(int(v) for v in a.res.lower().split('x'))
     Path(a.out).mkdir(parents=True, exist_ok=True)
     t = time.time()
-    global LAYOUT, LAY
-    LAYOUT, LAY = a.layout, LAYOUTS[a.layout]
+    global LAYOUT, LAY, TABLE_STATE
+    LAYOUT, LAY, TABLE_STATE = a.layout, LAYOUTS[a.layout], a.table
     build(cut=a.cut)
     if a.threads:
         bpy.context.scene.render.threads_mode = 'FIXED'
@@ -1541,7 +1556,8 @@ def main():
         bpy.ops.wm.save_as_mainfile(filepath=str(Path(a.blend).resolve()))
         print('  .blend:', a.blend)
     for v in [v for v in a.views.split(',') if v]:
-        render(v, res, a.samples, a.out, EXPOSURE.get(v, 0.0), a.layout)
+        tag = a.layout + ('-ext' if a.layout == 'K4' and a.table == 'extended' else '')
+        render(v, res, a.samples, a.out, EXPOSURE.get(v, 0.0), tag)
 
 
 if __name__ == '__main__':
