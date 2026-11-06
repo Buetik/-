@@ -748,7 +748,7 @@ def build(cut=False):
             for i, (x, y) in enumerate(((-1500, 900), (-1500, 2200))):
                 cylinder(f'balc_downlight_{i}', x, y, H_B - 4, H_B, 40, X['trim_ring'], seg=24)
                 cylinder(f'balc_downlight_lens_{i}', x, y, H_B - 6, H_B - 4, 28, X['led'], seg=24)
-        for i, (x, y) in enumerate(SPOTS):
+        for i, (x, y) in enumerate(spots_for_layout()):
             cylinder(f'downlight_{i}', x, y, H_K - 4, H_K, 48, X['trim_ring'], seg=24)
             cylinder(f'downlight_lens_{i}', x, y, H_K - 6, H_K - 4, 34, X['led'], seg=24)
     collection('trim')
@@ -857,6 +857,8 @@ def build(cut=False):
     collection('tv_wall')
     if LAY.get('tv', True):
         tv_zone(X, S, BR)
+    if LAYOUT == 'K4':
+        tv_lift(X, cut)
     if not cut:
         for i, (a0, a1) in enumerate(LAY['frames']):
             frame_on_wall(f'mould_W8_{i}', ('y', 3580, -1), a0, a1, *LAY.get('frame_z', (760, 2380)), X['wall'])
@@ -932,8 +934,11 @@ def build(cut=False):
     collection('lights')
     warm = (1.0, 0.84, 0.68)
     if not cut:
-        for i, (x, y) in enumerate(SPOTS):
+        for i, (x, y) in enumerate(spots_for_layout()):
             spot(f'spot_{i}', x, y, H_K - 8, 22.0, warm, 75)
+        if LAYOUT == 'K4':  # споты в нижней плоскости короба ТВ-подъёмника
+            for i, (x, y) in enumerate(LIFT_SPOTS):
+                spot(f'lift_spot_{i}', x, y, LIFT_Z0 - 6, 14.0, warm, 75)
         for i, sx in enumerate(LAY['sconces']):
             point(f'sconce_l{i}', sx, 3450, 1640, 7.0, warm, 25)
         if LAYOUT == 'K4':
@@ -1071,6 +1076,79 @@ def tv_zone(X, S, BR):
 
 K4_PENDANTS = (1300, 1900, 2500)
 TABLE_STATE = 'compact'
+TV_STATE = 'up'
+# ТВ-подъёмник K4 (D38): короб под потолком кухни у портала O4, ТВ 65″ опускается в проём экраном к балкону
+LIFT = (0, 1150, 700, 2400)           # короб: x0, x1, y0, y1
+LIFT_Z0 = 2490                        # низ короба (потолок кухни +2650)
+LIFT_SPOTS = ((950, 1000), (950, 2100))
+TV65 = (1440, 830)                    # ширина, высота корпуса 65″
+TV_C = (1540, 1415)                   # центр по Y (ось П-дивана) и по высоте в опущенном положении
+TV_X = 240                            # лицевая плоскость экрана в опущенном положении (смотрит в −X, на балкон)
+
+
+def mat_screen_on():
+    """Включённый экран: мягкий «закатный» кадр (вертикальный градиент), светится."""
+    if 'screen_on' in MATS:
+        return MATS['screen_on']
+    m = _newmat('screen_on')
+    N, L = m.node_tree.nodes, m.node_tree.links
+    N.remove(N['Principled BSDF'])
+    tc = N.new('ShaderNodeTexCoord')
+    sep = N.new('ShaderNodeSeparateXYZ')
+    L.new(tc.outputs['Generated'], sep.inputs['Vector'])
+    ramp = N.new('ShaderNodeValToRGB')
+    cr = ramp.color_ramp
+    cr.elements[0].position, cr.elements[0].color = 0.0, lin('#2B3D52')
+    cr.elements[1].position, cr.elements[1].color = 1.0, lin('#F0B27C')
+    e = cr.elements.new(0.45)
+    e.color = lin('#C7735A')
+    L.new(sep.outputs['Z'], ramp.inputs['Fac'])
+    em = N.new('ShaderNodeEmission')
+    em.inputs['Strength'].default_value = 2.2
+    L.new(ramp.outputs['Color'], em.inputs['Color'])
+    gl = N.new('ShaderNodeBsdfGlossy')
+    gl.inputs['Roughness'].default_value = 0.05
+    ad = N.new('ShaderNodeAddShader')
+    L.new(em.outputs['Emission'], ad.inputs[0])
+    L.new(gl.outputs['BSDF'], ad.inputs[1])
+    L.new(ad.outputs['Shader'], N['Material Output'].inputs['Surface'])
+    MATS['screen_on'] = m
+    return m
+
+
+def spots_for_layout():
+    if LAYOUT != 'K4':
+        return SPOTS
+    x0, x1, y0, y1 = LIFT
+    return [(x, y) for x, y in SPOTS if not (x0 - 60 <= x <= x1 + 60 and y0 - 60 <= y <= y1 + 60)]
+
+
+def tv_lift(X, cut):
+    """Моторизованный потолочный подъёмник: убран — ТВ лежит в коробе (снизу видна крышка-люк);
+    опущен — ТВ висит в проёме O4 на телескопических штангах, низ +1000, экраном к П-дивану."""
+    x0, x1, y0, y1 = LIFT
+    W_, H_ = TV65
+    yc, zc = TV_C
+    if not cut:
+        box('lift_box', x0, x1, y0, y1, LIFT_Z0, 2650, X['ceil'])
+        sweep('lift_box_mould', [(x1, y0, LIFT_Z0), (x1, y1, LIFT_Z0), (x0, y1, LIFT_Z0), (x0, y0, LIFT_Z0)],
+              (0, 0, 1), [(0, 0), (0, -6), (6, -12), (14, -14), (20, -18), (24, -24)], X['ceil'])
+        for i, (sx, sy) in enumerate(LIFT_SPOTS):
+            cylinder(f'lift_downlight_{i}', sx, sy, LIFT_Z0 - 4, LIFT_Z0, 40, X['trim_ring'], seg=24)
+            cylinder(f'lift_downlight_lens_{i}', sx, sy, LIFT_Z0 - 6, LIFT_Z0 - 4, 28, X['led'], seg=24)
+    if TV_STATE == 'down':
+        # открытый проём в днище короба и ТВ в рабочем положении
+        if not cut:
+            box('lift_slot', 200, 300, yc - W_ / 2 - 20, yc + W_ / 2 + 20, LIFT_Z0 - 2, LIFT_Z0 + 2, X['rubber'])
+        z0, z1 = zc - H_ / 2, zc + H_ / 2
+        box('tv_lift_body', TV_X, TV_X + 45, yc - W_ / 2, yc + W_ / 2, z0, z1, X['tv_body'], bevel=3)
+        box('tv_lift_screen', TV_X - 2, TV_X, yc - W_ / 2 + 6, yc + W_ / 2 - 6, z0 + 6, z1 - 6, mat_screen_on())
+        for i, yy in enumerate((yc - 300, yc + 300)):
+            box(f'tv_lift_arm_{i}', TV_X + 45, TV_X + 75, yy - 15, yy + 15, z1 - 120, LIFT_Z0, X['steel'])
+        box('tv_lift_bar', TV_X + 45, TV_X + 75, yc - 330, yc + 330, z1 - 140, z1 - 100, X['steel'])
+    elif not cut:
+        # ТВ убран: снизу короба — крышка-люк с теневым швом
+        box('lift_hatch', 60, 1090, yc - W_ / 2 - 30, yc + W_ / 2 + 30, LIFT_Z0 - 3, LIFT_Z0, X['ceil'], bevel=1)
 
 
 def globe_pendant(name, x, y, ceil, r, zc, X):
@@ -1217,6 +1295,7 @@ LAYOUTS = {
             'V3': ((3300, 3400, 1300), (1600, 0, 1050), 19),       # кухонный фронт из-за стола
             'V4': ((-1300, 900, 1250), (2600, 2800, 950), 19),     # с балкона из «П» на кухню
             'V5': ((500, 1500, 1450), (-2100, 1556, 550), 20),     # П-образный диван через портал
+            'V7': ((-2050, 1556, 1150), (600, 1540, 1350), 22),    # «Кино»: вид с дивана на ТВ в проёме
             'V6': ((770, 845, 11400), (770, 1745, 0), 48),         # 3D-план сверху (запуск с --cut)
         }),
 }
@@ -1525,7 +1604,7 @@ def render(view, res, samples, out_dir, exposure=0.0, layout='K2'):
     return out
 
 
-EXPOSURE = {'V1': 0.35, 'V2': 0.3, 'V3': 0.45, 'V4': 0.45, 'V5': 0.0, 'V6': -0.2}
+EXPOSURE = {'V7': 0.3, 'V1': 0.35, 'V2': 0.3, 'V3': 0.45, 'V4': 0.45, 'V5': 0.0, 'V6': -0.2}
 
 
 def main():
@@ -1535,6 +1614,7 @@ def main():
     ap.add_argument('--samples', type=int, default=256)
     ap.add_argument('--out', default=str(OUT / 'renders'))
     ap.add_argument('--cut', action='store_true', help='сцена «кукольный домик» (для V6)')
+    ap.add_argument('--tv', default='up', choices=('up', 'down'), help='K4: ТВ-подъёмник убран или опущен')
     ap.add_argument('--table', default='compact', choices=('compact', 'extended'),
                     help='K4: раздвижной стол сложен (4 персоны) или разложен (10)')
     ap.add_argument('--layout', default='K2', choices=sorted(LAYOUTS), help='эскиз заказчика: K2 или K3')
@@ -1544,8 +1624,8 @@ def main():
     res = tuple(int(v) for v in a.res.lower().split('x'))
     Path(a.out).mkdir(parents=True, exist_ok=True)
     t = time.time()
-    global LAYOUT, LAY, TABLE_STATE
-    LAYOUT, LAY, TABLE_STATE = a.layout, LAYOUTS[a.layout], a.table
+    global LAYOUT, LAY, TABLE_STATE, TV_STATE
+    LAYOUT, LAY, TABLE_STATE, TV_STATE = a.layout, LAYOUTS[a.layout], a.table, a.tv
     build(cut=a.cut)
     if a.threads:
         bpy.context.scene.render.threads_mode = 'FIXED'
@@ -1555,7 +1635,8 @@ def main():
         bpy.ops.wm.save_as_mainfile(filepath=str(Path(a.blend).resolve()))
         print('  .blend:', a.blend)
     for v in [v for v in a.views.split(',') if v]:
-        tag = a.layout + ('-ext' if a.layout == 'K4' and a.table == 'extended' else '')
+        tag = a.layout + ('-ext' if a.layout == 'K4' and a.table == 'extended' else '') + \
+            ('-tv' if a.layout == 'K4' and a.tv == 'down' else '')
         render(v, res, a.samples, a.out, EXPOSURE.get(v, 0.0), tag)
 
 
