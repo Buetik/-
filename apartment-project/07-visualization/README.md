@@ -2,11 +2,36 @@
 
 | Вариант | Что | Рендеры |
 |---|---|---|
-| **K4 (актуальный, D35–D37)** | стена W2 без изменений; на балконе П-образный диван и пуф; в кухне раздвижной овальный стол: сложен 1400 — 4 персоны, разложен 2400 — 10; без ТВ и без банкетки | `renders/kitchen-balcony-K4-V1…V6.png` (сложен), `renders/kitchen-balcony-K4-ext-V1, V2, V6.png` (разложен), `kitchen-balcony-K4.blend` |
+| **K4 (актуальный, D35–D41)** | стена W2 без изменений; угловая кухня (W3 + W10); на балконе П-образный диван и пуф; в кухне раздвижной овальный стол: сложен 1400 — 4 персоны, разложен 2400 — 10; ТВ нет — проектор на потолке балкона и моторизованный экран 80″ в коробе над порталом | `renders/kitchen-balcony-K4-V1…V6.png` (стол сложен, экран убран), `renders/kitchen-balcony-K4-ext-V1, V2, V6.png` (стол разложен), `renders/kitchen-balcony-K4-cinema-V7.png` (режим «Кино»), `kitchen-balcony-K4.blend` |
 | K3 (D34) | угловой диван через расширенный проём, круглый стол в кухне — отменён (расширение проёма в несущей стене) | `renders/kitchen-balcony-K3-*.png` |
 | K2 (D33) | столовая на балконе, диван и ТВ в кухне | `renders/kitchen-balcony-V1…V6.png`, `kitchen-balcony.blend` |
 
-Запуск варианта: `--layout K2|K3|K4`, для K4 — `--table compact|extended`. Ниже — описание варианта K2.
+Запуск варианта: `--layout K2|K3|K4`, для K4 — `--table compact|extended` и `--cinema` (экран опущен, идёт картинка).
+
+## Вариант K4 (актуальный)
+
+| Файл | Что показано |
+|---|---|
+| `renders/kitchen-balcony-K4-V1.png` | Общий вид из прихожей: угловая кухня, овальный стол, за порталом — П-диван и проектор на потолке балкона |
+| `renders/kitchen-balcony-K4-V2.png` | Стол и стена W8 с молдингами и бра, слева — балкон с П-диваном |
+| `renders/kitchen-balcony-K4-V3.png` | Угловая кухня (W3 + W10) из-за стола, сидя |
+| `renders/kitchen-balcony-K4-V4.png` | Из балкона через портал: стол, кухня, шкаф прихожей |
+| `renders/kitchen-balcony-K4-V5.png` | П-образный диван и пуф-столик у остекления |
+| `renders/kitchen-balcony-K4-V6.png` | 3D-план сверху (стены срезаны на +1100), стол сложен |
+| `renders/kitchen-balcony-K4-ext-V1.png`, `-ext-V2.png`, `-ext-V6.png` | То же со столом, разложенным на 10 персон |
+| `renders/kitchen-balcony-K4-cinema-V7.png` | Режим «Кино» с центрального места дивана: экран 80″ опущен в проём, проектор над спинкой дивана |
+
+- **Кухня угловая (D39):** на W3 — пенал с духовкой, варочная, ПММ, мойка; на W10 — база с ящиками 600 и пенал
+  холодильника 600 + панель 40 у прихожей. Над холодильником — короб с доступом к решётке вентканала U13.
+- **Стол (D36–D37):** овальный 1000 в ширину на двух точёных тумбах; сложен 1400 — 4 кресла, разложен 2400
+  (две вставки по 500) — 10 кресел. Над столом — 3 подвеса-шара; на W8 — рамки-молдинги и 2 бра. Банкетки нет.
+- **Кино (D41):** проектор на потолке балкона над спинкой дивана (ось проёма, +2390), проекционное расстояние ≈2,3 м.
+  Экран 80″ 16:9 в коробе-ламбрекене под потолком кухни над порталом O4; в режиме «Кино» опускается в проём
+  экраном к дивану, до центральных мест ≈2,15 м. В обычном режиме экран убран в короб — кухню и проход он не занимает.
+
+Рабочие чертежи, электрика и смета пока соответствуют варианту D1 — обновить после утверждения K4.
+
+Ниже — описание варианта K2.
 
 ## Вариант K2 (эскиз заказчика)
 
@@ -52,6 +77,12 @@ python3.11 -m venv .venv && .venv/bin/pip install bpy shapely
 .venv/bin/python tools/viz_kitchen_balcony.py --views V1,V2,V3,V4,V5 --res 1600x900 --samples 160 \
     --blend 07-visualization/kitchen-balcony.blend
 .venv/bin/python tools/viz_kitchen_balcony.py --views V6 --cut --res 1600x900 --samples 128
+# K4
+.venv/bin/python tools/viz_kitchen_balcony.py --layout K4 --views V1,V2,V3,V4,V5 --res 1600x900 --samples 144 \
+    --blend 07-visualization/kitchen-balcony-K4.blend
+.venv/bin/python tools/viz_kitchen_balcony.py --layout K4 --table extended --views V1,V2 --res 1600x900 --samples 144
+.venv/bin/python tools/viz_kitchen_balcony.py --layout K4 --cinema --views V7 --res 1600x900 --samples 144
+.venv/bin/python tools/viz_kitchen_balcony.py --layout K4 [--table extended] --views V6 --cut --res 1600x900 --samples 128
 ```
 
-Ракурсы (позиция, цель, фокус) — словарь `CAMS`, размеры мебели — в `build()`.
+Ракурсы (позиция, цель, фокус) — `cams` в `LAYOUTS` для каждого варианта, размеры мебели — в `build()`.
