@@ -744,6 +744,10 @@ def build(cut=False):
         box('niche_side_B1', -2300, -2281, 195, 2918, H_B, 2600, X['olive'])
         box('niche_side_B2', -2281, -420, 2918, 2937, H_B, 2600, X['olive'])
         box('niche_side_B3', -2281, -420, 176, 195, H_B, 2600, X['olive'])
+        if LAYOUT == 'K4':
+            for i, (x, y) in enumerate(((-1500, 900), (-1500, 2200))):
+                cylinder(f'balc_downlight_{i}', x, y, H_B - 4, H_B, 40, X['trim_ring'], seg=24)
+                cylinder(f'balc_downlight_lens_{i}', x, y, H_B - 6, H_B - 4, 28, X['led'], seg=24)
         for i, (x, y) in enumerate(SPOTS):
             cylinder(f'downlight_{i}', x, y, H_K - 4, H_K, 48, X['trim_ring'], seg=24)
             cylinder(f'downlight_lens_{i}', x, y, H_K - 6, H_K - 4, 34, X['led'], seg=24)
@@ -851,18 +855,11 @@ def build(cut=False):
 
     # ---------------- ТВ-зона на W8 (y=3580): подвесная консоль, ТВ, молдинги, бра
     collection('tv_wall')
-    CY0, CY1 = LAY['console_y0'], 3580
-    box('console_body', 30, 3500, CY0 + 19, CY1, 250, 650, S, bevel=2)
-    for i, (x0, x1) in enumerate([(30, 396), (396, 762), (762, 1446), (1446, 2131), (2131, 2815), (2815, 3500)]):
-        hx = x1 - 45 if i % 2 == 0 else x0 + 45
-        front(f'console_f{i}', x0, x1, 252, 648, CY0 + 19, -1, S, handle=('knob', hx, 450), hm=BR)
-    tvw, tvh, tvc, TVX = LAY['tv_w'], LAY['tv_w'] * 9 / 16, 1150, LAY['tv_x']
-    box('tv_body', TVX - tvw / 2, TVX + tvw / 2, 3530, 3555, tvc - tvh / 2, tvc + tvh / 2, X['tv_body'], bevel=3)
-    box('tv_screen', TVX - tvw / 2 + 6, TVX + tvw / 2 - 6, 3528, 3530, tvc - tvh / 2 + 6, tvc + tvh / 2 - 6,
-        X['tv'])
+    if LAY.get('tv', True):
+        tv_zone(X, S, BR)
     if not cut:
         for i, (a0, a1) in enumerate(LAY['frames']):
-            frame_on_wall(f'mould_W8_{i}', ('y', 3580, -1), a0, a1, 760, 2380, X['wall'])
+            frame_on_wall(f'mould_W8_{i}', ('y', 3580, -1), a0, a1, *LAY.get('frame_z', (760, 2380)), X['wall'])
         if OT < 2600:
             frame_on_wall('mould_W2', ('x', 0, +1), 2700, 3330, 760, 2380, X['wall'])
         for i, sx in enumerate(LAY['sconces']):
@@ -878,8 +875,10 @@ def build(cut=False):
     if LAYOUT == 'K2':
         sofa_k2(X)
         glass_door_k2(X)
-    else:
+    elif LAYOUT == 'K3':
         sofa_k3(X)
+    else:
+        sofa_k4(X)
 
     # ---------------- балкон: парапеты, остекление, шторы
     collection('balcony')
@@ -906,7 +905,10 @@ def build(cut=False):
     # ---------------- столовая: K2 — на балконе, K3 — в кухне
     collection('dining')
     TX, TY = LAY['table']
-    dining(X, TX, TY, LAY['chairs'], cut, LAY['pendant_z0'])
+    if LAYOUT == 'K4':
+        dining_long(X, cut)
+    else:
+        dining(X, TX, TY, LAY['chairs'], cut, LAY['pendant_z0'])
 
     # ---------------- снаружи: перекрытие балкона, фасад, земля, деревья
     collection('exterior')
@@ -934,7 +936,13 @@ def build(cut=False):
             spot(f'spot_{i}', x, y, H_K - 8, 22.0, warm, 75)
         for i, sx in enumerate(LAY['sconces']):
             point(f'sconce_l{i}', sx, 3450, 1640, 7.0, warm, 25)
-        point('pendant_light', TX, TY, 1650, 45.0, warm, 90)
+        if LAYOUT == 'K4':
+            for i, px in enumerate(K4_PENDANTS):
+                point(f'pendant_light_{i}', px, 2580, 1720, 28.0, warm, 70)
+            for i, (bx_, by_) in enumerate(((-1500, 900), (-1500, 2200))):
+                spot(f'balcony_spot_{i}', bx_, by_, H_B - 8, 14.0, warm, 80)
+        else:
+            point('pendant_light', TX, TY, 1650, 45.0, warm, 90)
         area('led_under', 2050, 50, 1540, 2780, 20, 14.0, warm)
     sun_and_sky(cut)
 
@@ -1047,6 +1055,120 @@ def sofa_k3(X):
         p.location = (M(px), M(py), M(800))
 
 
+def tv_zone(X, S, BR):
+    """Подвесная консоль вдоль W8 и ТВ на стене."""
+    CY0, CY1 = LAY['console_y0'], 3580
+    box('console_body', 30, 3500, CY0 + 19, CY1, 250, 650, S, bevel=2)
+    for i, (x0, x1) in enumerate([(30, 396), (396, 762), (762, 1446), (1446, 2131), (2131, 2815), (2815, 3500)]):
+        hx = x1 - 45 if i % 2 == 0 else x0 + 45
+        front(f'console_f{i}', x0, x1, 252, 648, CY0 + 19, -1, S, handle=('knob', hx, 450), hm=BR)
+    tvw, tvh, tvc, TVX = LAY['tv_w'], LAY['tv_w'] * 9 / 16, 1150, LAY['tv_x']
+    box('tv_body', TVX - tvw / 2, TVX + tvw / 2, 3530, 3555, tvc - tvh / 2, tvc + tvh / 2, X['tv_body'], bevel=3)
+    box('tv_screen', TVX - tvw / 2 + 6, TVX + tvw / 2 - 6, 3528, 3530, tvc - tvh / 2 + 6, tvc + tvh / 2 - 6,
+        X['tv'])
+
+
+
+K4_PENDANTS = (1300, 1900, 2500)
+
+
+def globe_pendant(name, x, y, ceil, r, zc, X):
+    """Подвес: латунная штанга и опаловый шар радиуса r с центром на высоте zc."""
+    BR = X['brass']
+    cylinder(name + '_canopy', x, y, ceil - 20, ceil, 55, BR)
+    cylinder(name + '_rod', x, y, zc + r + 25, ceil - 20, 4, BR)
+    lathe(name + '_cap', [(0, zc + r - 12), (38, zc + r - 8), (45, zc + r + 10), (20, zc + r + 25), (0, zc + r + 27)],
+          x, y, BR)
+    prof = [(r * math.cos(math.radians(a)), zc + r * math.sin(math.radians(a))) for a in range(-90, 76, 5)]
+    prof[0] = (0.0, zc - r)
+    prof += [(r * 0.3, zc + r * 0.99), (0, zc + r)]
+    g = lathe(name + '_globe', prof, x, y, X['opal'], seg=64)
+    g.visible_shadow = False
+
+
+def dining_long(X, cut):
+    """K4: стол 2400×1000 на 10 персон: мягкая банкетка вдоль W8 (4 места), 4 кресла со стороны кухни и 2 в торцах."""
+    BR, S, F = X['brass'], X['sage'], X['sofa']
+    TX0, TX1, TY0, TY1 = 700, 3100, 2080, 3080
+    # стол: дубовая столешница 40, царга, точёные ножки
+    box('table_top', TX0, TX1, TY0, TY1, 720, 760, X['oak'], bevel=4, seg=3)
+    for nm, a in (('apron_s', (TX0 + 90, TX1 - 90, TY0 + 90, TY0 + 112)), ('apron_n', (TX0 + 90, TX1 - 90, TY1 - 112, TY1 - 90)),
+                  ('apron_w', (TX0 + 90, TX0 + 112, TY0 + 90, TY1 - 90)), ('apron_e', (TX1 - 112, TX1 - 90, TY0 + 90, TY1 - 90))):
+        box('table_' + nm, *a, 620, 720, X['oak'], bevel=2)
+    for i, (lx, ly) in enumerate([(TX0 + 100, TY0 + 100), (TX1 - 100, TY0 + 100), (TX0 + 100, TY1 - 100),
+                                  (TX1 - 100, TY1 - 100)]):
+        lathe(f'table_leg_{i}', [(26, 0), (30, 40), (24, 70), (32, 110), (38, 300), (34, 520), (40, 560), (30, 580),
+                                 (40, 600), (40, 720)], lx, ly, X['oak_v'], seg=24)
+    # банкетка вдоль W8: корпус «шалфей» с филёнками, мягкое сиденье и спинка
+    BX0, BX1, BY0 = 450, 3350, 3130
+    box('bench_body', BX0, BX1, BY0 + 19, 3580, 80, 420, S, bevel=2)
+    box('bench_plinth', BX0 + 20, BX1 - 20, BY0 + 60, 3580, 0, 80, X['rubber'])
+    n = 4
+    w = (BX1 - BX0) / n
+    for i in range(n):
+        front(f'bench_f{i}', BX0 + i * w, BX0 + (i + 1) * w, 82, 418, BY0 + 19, -1, S)
+    box('bench_seat', BX0 + 5, BX1 - 5, BY0 - 10, 3575, 420, 500, F, bevel=35, seg=4, subsurf=1)
+    m = 5
+    w2 = (BX1 - BX0) / m
+    for i in range(m):
+        bc = box(f'bench_back_{i}', BX0 + i * w2 + 6, BX0 + (i + 1) * w2 - 6, 3390, 3570, 510, 900, F, bevel=55,
+                 seg=4, subsurf=1)
+        bc.rotation_euler = (math.radians(-8), 0, 0)
+    for i, (px, mt, rz) in enumerate([(BX0 + 420, 'pillow_a', 6), (BX1 - 420, 'pillow_b', -6)]):
+        p = box(f'bench_pillow_{i}', -200, 200, -70, 70, -200, 200, X[mt], bevel=65, seg=4, subsurf=2)
+        p.rotation_euler = (math.radians(-14), 0, math.radians(rz))
+        p.location = (M(px), M(3330), M(700))
+    # кресла: 4 со стороны кухни, 2 в торцах
+    chairs = [(x, 1850, math.pi / 2) for x in (1000, 1600, 2200, 2800)] + [(400, 2580, 0.0), (3400, 2580, math.pi)]
+    for i, (cx, cy, rot) in enumerate(chairs):
+        tub_chair(f'chair_{i}', cx, cy, rot, X['chair'], X['oak_v'])
+    if not cut:
+        for i, px in enumerate(K4_PENDANTS):
+            globe_pendant(f'pendant_{i}', px, 2580, 2650, 130, 1720, X)
+
+
+def sofa_k4(X):
+    """K4: П-образный диван на балконе — спинка вдоль остекления B1, боковины вдоль B2/B3, открыт к проёму; пуф в центре."""
+    collection('sofa')
+    F, W = X['sofa'], X['wood_dark']
+    X0, XS, XE = -2431, -2211, -520      # стена, лицо спинки B1, концы боковин
+    YA, YB = 45, 3068                    # торцы балкона
+    D = 850                              # глубина боковин
+    for nm, a in (('base_b1', (X0 + 10, XS + 630, YA + 10, YB - 10)), ('base_b3', (XS + 630, XE, YA + 10, YA + D)),
+                  ('base_b2', (XS + 630, XE, YB - D, YB - 10))):
+        box('sofa_' + nm, *a, 110, 380, F, bevel=25, seg=3)
+    for i, (lx, ly) in enumerate([(X0 + 60, YA + 60), (X0 + 60, YB - 60), (XE - 60, YA + 60), (XE - 60, YB - 60),
+                                  (XE - 60, YA + D - 60), (XE - 60, YB - D + 60)]):
+        box(f'sofa_leg_{i}', lx - 22, lx + 22, ly - 22, ly + 22, 0, 110, W, bevel=4)
+    box('sofa_back_b1', X0, XS, YA, YB, 300, 760, F, bevel=50, seg=4)
+    box('sofa_back_b3', XS, XE, YA, YA + 220, 300, 760, F, bevel=50, seg=4)
+    box('sofa_back_b2', XS, XE, YB - 220, YB, 300, 760, F, bevel=50, seg=4)
+    seats = [(XS, XS + 630, YA + 220, YA + D), (XS, XS + 630, YA + D, 1556), (XS, XS + 630, 1556, YB - D),
+             (XS, XS + 630, YB - D, YB - 220),
+             (XS + 630, -1050, YA + 220, YA + D), (-1050, XE, YA + 220, YA + D),
+             (XS + 630, -1050, YB - D, YB - 220), (-1050, XE, YB - D, YB - 220)]
+    for i, (x0, x1, y0, y1) in enumerate(seats):
+        box(f'sofa_seat_{i}', x0 + 4, x1 - 4, y0 + 4, y1 - 4, 380, 560, F, bevel=45, seg=4, subsurf=1)
+    for i, (y0, y1) in enumerate([(YA + 220, YA + D), (YA + D, 1556), (1556, YB - D), (YB - D, YB - 220)]):
+        bc = box(f'sofa_bc_b1_{i}', XS - 20, XS + 190, y0 + 6, y1 - 6, 540, 920, F, bevel=60, seg=4, subsurf=1)
+        bc.rotation_euler = (0, math.radians(-9), 0)
+    for i, (x0, x1) in enumerate([(XS + 190, -1050), (-1050, XE)]):
+        bc = box(f'sofa_bc_b3_{i}', x0 + 6, x1 - 6, YA + 200, YA + 410, 540, 920, F, bevel=60, seg=4, subsurf=1)
+        bc.rotation_euler = (math.radians(9), 0, 0)
+        bc = box(f'sofa_bc_b2_{i}', x0 + 6, x1 - 6, YB - 410, YB - 200, 540, 920, F, bevel=60, seg=4, subsurf=1)
+        bc.rotation_euler = (math.radians(-9), 0, 0)
+    for i, (px, py, mt, rx, ry, rz) in enumerate([(XS + 230, 700, 'pillow_a', 0, -15, 92), (XS + 230, 2380, 'pillow_b', 0, -15, 86),
+                                                  (-900, YA + 450, 'pillow_b', 15, 0, 4), (-900, YB - 450, 'pillow_a', -15, 0, -4)]):
+        p = box(f'pillow_{i}', -210, 210, -70, 70, -210, 210, X[mt], bevel=65, seg=4, subsurf=2)
+        p.rotation_euler = (math.radians(rx), math.radians(ry), math.radians(rz))
+        p.location = (M(px), M(py), M(770))
+    # круглый пуф-столик в центре «П» с подносом
+    lathe('pouf', [(0, 30), (300, 30), (335, 60), (350, 140), (350, 330), (335, 400), (300, 425), (0, 428)],
+          -1150, 1556, X['chair'], seg=64)
+    lathe('pouf_tray', [(0, 428), (230, 428), (232, 445), (226, 447), (0, 436)], -1150, 1556, X['brass'], seg=64)
+
+
+
 LAYOUTS = {
     'K2': dict(
         sketch='kitchen-balcony-sketch-K2.png', open_top=2450, console_y0=3320, tv_w=1280, tv_x=1700,
@@ -1072,6 +1194,17 @@ LAYOUTS = {
             'V3': ((3250, 3120, 1350), (1500, 0, 1000), 19),       # кухонный фронт со стороны ТВ
             'V4': ((-1450, 1000, 1350), (2600, 2900, 1100), 19),    # с дивана на балконе в кухню и на ТВ
             'V5': ((-600, 600, 1450), (-2100, 2700, 650), 18),     # балкон-гостиная: угловой диван
+            'V6': ((770, 845, 11400), (770, 1745, 0), 48),         # 3D-план сверху (запуск с --cut)
+        }),
+    'K4': dict(
+        sketch=None, open_top=2450, tv=False, frames=[(300, 1150), (1300, 2500), (2650, 3450)],
+        frame_z=(1050, 2380), sconces=(725, 3050), table=(1900, 2580), pendant_z0=2650, chairs=[],
+        cams={
+            'V1': ((4300, 2750, 1600), (-1500, 1550, 900), 20),    # общий вид из прихожей: стол на 10 и балкон
+            'V2': ((3800, 750, 1550), (900, 3000, 900), 19),       # стол и банкетка от торца кухни
+            'V3': ((2900, 3350, 1300), (1600, 0, 1050), 19),       # кухонный фронт из-за стола
+            'V4': ((-1300, 900, 1250), (2600, 2800, 950), 19),     # с балкона из «П» на кухню
+            'V5': ((500, 1500, 1450), (-2100, 1556, 550), 20),     # П-образный диван через портал
             'V6': ((770, 845, 11400), (770, 1745, 0), 48),         # 3D-план сверху (запуск с --cut)
         }),
 }
