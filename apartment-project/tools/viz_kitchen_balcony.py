@@ -1088,51 +1088,50 @@ def globe_pendant(name, x, y, ceil, r, zc, X):
 
 
 def dining_long(X, cut):
-    """K4: раздвижной стол 1000 в ширину: сложен 1400 — на 4 персоны, разложен 2400 (две вставки по 500) — на 10.
-    Мягкая банкетка вдоль W8; кресла со стороны кухни и в торцах."""
-    BR, S, F = X['brass'], X['sage'], X['sofa']
+    """K4: раздвижной овальный стол (полукруглые торцы R500, ширина 1000) на двух точёных тумбах.
+    Сложен 1400 — на 4 персоны (по 2 кресла с длинных сторон); разложен 2400 (две вставки по 500) — на 10
+    (по 4 кресла с длинных сторон и по одному в торцах)."""
     ext = TABLE_STATE == 'extended'
-    TXC, TY0, TY1 = 1900, 2080, 3080
+    TXC, TYC, R_ = 1900, 2585, 500
     L_ = 2400 if ext else 1400
     TX0, TX1 = TXC - L_ / 2, TXC + L_ / 2
-    # столешница: две половины по 700 и (в разложенном виде) две вставки по 500 — с тонкими стыками
-    cuts = [TX0, TX0 + 700, TX0 + 1200, TX0 + 1700, TX1] if ext else [TX0, TXC, TX1]
-    for i in range(len(cuts) - 1):
-        box(f'table_top_{i}', cuts[i] + (1 if i else 0), cuts[i + 1] - (1 if i < len(cuts) - 2 else 0), TY0, TY1,
-            720, 760, X['oak'], bevel=3, seg=2)
-    for nm, a in (('apron_s', (TX0 + 90, TX1 - 90, TY0 + 90, TY0 + 112)), ('apron_n', (TX0 + 90, TX1 - 90, TY1 - 112, TY1 - 90)),
-                  ('apron_w', (TX0 + 90, TX0 + 112, TY0 + 90, TY1 - 90)), ('apron_e', (TX1 - 112, TX1 - 90, TY0 + 90, TY1 - 90))):
-        box('table_' + nm, *a, 620, 720, X['oak'], bevel=2)
-    legs = [(TX0 + 100, TY0 + 100), (TX1 - 100, TY0 + 100), (TX0 + 100, TY1 - 100), (TX1 - 100, TY1 - 100)]
-    if ext:  # опорные ножки под вставками
-        legs += [(TXC, TY0 + 100), (TXC, TY1 - 100)]
-    for i, (lx, ly) in enumerate(legs):
-        lathe(f'table_leg_{i}', [(26, 0), (30, 40), (24, 70), (32, 110), (38, 300), (34, 520), (40, 560), (30, 580),
-                                 (40, 600), (40, 720)], lx, ly, X['oak_v'], seg=24)
-    # банкетка вдоль W8: корпус «шалфей» с филёнками, мягкое сиденье и спинка
-    BX0, BX1, BY0 = 450, 3350, 3130
-    box('bench_body', BX0, BX1, BY0 + 19, 3580, 80, 420, S, bevel=2)
-    box('bench_plinth', BX0 + 20, BX1 - 20, BY0 + 60, 3580, 0, 80, X['rubber'])
-    n = 4
-    w = (BX1 - BX0) / n
-    for i in range(n):
-        front(f'bench_f{i}', BX0 + i * w, BX0 + (i + 1) * w, 82, 418, BY0 + 19, -1, S)
-    box('bench_seat', BX0 + 5, BX1 - 5, BY0 - 10, 3575, 420, 500, F, bevel=35, seg=4, subsurf=1)
-    m = 5
-    w2 = (BX1 - BX0) / m
-    for i in range(m):
-        bc = box(f'bench_back_{i}', BX0 + i * w2 + 6, BX0 + (i + 1) * w2 - 6, 3390, 3570, 510, 900, F, bevel=55,
-                 seg=4, subsurf=1)
-        bc.rotation_euler = (math.radians(-8), 0, 0)
-    for i, (px, mt, rz) in enumerate([(BX0 + 420, 'pillow_a', 6), (BX1 - 420, 'pillow_b', -6)]):
-        p = box(f'bench_pillow_{i}', -200, 200, -70, 70, -200, 200, X[mt], bevel=65, seg=4, subsurf=2)
-        p.rotation_euler = (math.radians(-14), 0, math.radians(rz))
-        p.location = (M(px), M(3330), M(700))
-    # кресла: разложен — 4 со стороны кухни и 2 в торцах (+4 на банкетке = 10); сложен — 2 (+2 на банкетке = 4)
+    # столешница: две торцевые части (полукруг + 200 прямой) и в разложенном виде две вставки по 500
+    def end_piece(nm, xa, xb, sign):
+        cx = xa + R_ if sign < 0 else xb - R_
+        arc = [(cx + sign * R_ * math.sin(math.radians(t)), TYC - R_ * math.cos(math.radians(t))) for t in range(0, 181, 6)]
+        straight = [(xb, TYC + R_), (xb, TYC - R_)] if sign < 0 else [(xa, TYC + R_), (xa, TYC - R_)]
+        if sign < 0:
+            pts = [(xb, TYC - R_)] + [(cx - R_ * math.sin(math.radians(t)), TYC - R_ * math.cos(math.radians(t)))
+                                    for t in range(0, 181, 6)] + [(xb, TYC + R_)]
+        else:
+            pts = [(xa, TYC - R_)] + [(cx + R_ * math.sin(math.radians(t)), TYC - R_ * math.cos(math.radians(t)))
+                                    for t in range(0, 181, 6)] + [(xa, TYC + R_)]
+        _ = arc, straight
+        o = prism(nm, pts, 720, 760, X['oak'])
+        md = o.modifiers.new('bevel', 'BEVEL')
+        md.width = 0.004
+        md.segments = 3
+        md.limit_method = 'ANGLE'
+    end_piece('table_end_w', TX0, TX0 + 700 - 1, -1)
+    end_piece('table_end_e', TX1 - 700 + 1, TX1, +1)
     if ext:
-        chairs = [(x, 1850, math.pi / 2) for x in (1000, 1600, 2200, 2800)] + [(400, 2580, 0.0), (3400, 2580, math.pi)]
-    else:
-        chairs = [(x, 1850, math.pi / 2) for x in (1550, 2250)]
+        for i, x0 in enumerate((TX0 + 700, TX0 + 1200)):
+            box(f'table_leaf_{i}', x0 + 1, x0 + 499, TYC - R_, TYC + R_, 720, 760, X['oak'], bevel=3, seg=2)
+    # царга-рама под столешницей и две точёные тумбы с каннелюрами
+    box('table_rail', TX0 + 350, TX1 - 350, TYC - 300, TYC + 300, 680, 720, X['oak'], bevel=2)
+    for k, px in enumerate((TX0 + 450, TX1 - 450)):
+        lathe(f'table_pedestal_{k}', [(230, 0), (230, 18), (205, 30), (140, 45), (90, 70), (74, 120), (66, 300),
+                                     (60, 520), (68, 600), (82, 640), (115, 680), (150, 690)], px, TYC, X['oak_v'], seg=64)
+        for i in range(16):
+            a = 2 * math.pi * i / 16
+            fl = box(f'table_flute_{k}_{i}', -5, 5, -4, 4, 150, 560, X['oak_v'], bevel=3)
+            fl.rotation_euler = (0, 0, a)
+            fl.location = (M(px) + 0.065 * math.cos(a), M(TYC) + 0.065 * math.sin(a), fl.location.z)
+    # кресла с двух длинных сторон (+ торцы в разложенном виде)
+    xs = (1000, 1600, 2200, 2800) if ext else (1550, 2250)
+    chairs = [(x, 1935, math.pi / 2) for x in xs] + [(x, 3235, -math.pi / 2) for x in xs]
+    if ext:
+        chairs += [(TX0 - 300, TYC, 0.0), (TX1 + 300, TYC, math.pi)]
     for i, (cx, cy, rot) in enumerate(chairs):
         tub_chair(f'chair_{i}', cx, cy, rot, X['chair'], X['oak_v'])
     if not cut:
@@ -1211,11 +1210,11 @@ LAYOUTS = {
         }),
     'K4': dict(
         sketch=None, open_top=2450, tv=False, frames=[(300, 1150), (1300, 2500), (2650, 3450)],
-        frame_z=(1050, 2380), sconces=(725, 3050), table=(1900, 2580), pendant_z0=2650, chairs=[],
+        sconces=(725, 3050), table=(1900, 2580), pendant_z0=2650, chairs=[],
         cams={
             'V1': ((4300, 2750, 1600), (-1500, 1550, 900), 20),    # общий вид из прихожей: стол на 10 и балкон
-            'V2': ((3800, 750, 1550), (900, 3000, 900), 19),       # стол и банкетка от торца кухни
-            'V3': ((2900, 3350, 1300), (1600, 0, 1050), 19),       # кухонный фронт из-за стола
+            'V2': ((3800, 750, 1550), (900, 3000, 900), 19),       # стол от торца кухни
+            'V3': ((3300, 3400, 1300), (1600, 0, 1050), 19),       # кухонный фронт из-за стола
             'V4': ((-1300, 900, 1250), (2600, 2800, 950), 19),     # с балкона из «П» на кухню
             'V5': ((500, 1500, 1450), (-2100, 1556, 550), 20),     # П-образный диван через портал
             'V6': ((770, 845, 11400), (770, 1745, 0), 48),         # 3D-план сверху (запуск с --cut)
